@@ -95,7 +95,7 @@ Skybox::~Skybox()
 
 void Skybox::draw()
 {
-	glDepthMask(GL_FALSE);
+	// glDepthMask(GL_FALSE);
 	glUseProgram(skyboxShader);
 	// ... set view and projection matrix
 	glBindVertexArray(vao);

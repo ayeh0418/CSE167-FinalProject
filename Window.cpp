@@ -483,19 +483,21 @@ void Window::displayCallback(GLFWwindow* window)
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 	// draw the skybox
-	
+
 	glUseProgram(trackProgram);
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	track->draw();
+	track->draw(trackProgram, identity);
+
 	
 	glUseProgram(program);
 	sphere->draw(program, identity);
-	
+
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	env->draw();
+
 	// Render the objects.
 	// squad->draw(program, identity);
 	
