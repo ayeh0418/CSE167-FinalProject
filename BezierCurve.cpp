@@ -5,6 +5,8 @@
 
 // constructor
 BezierCurve::BezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+	active = 3; // no point selected by default
+
 	// store control points in a vector
 	controlPts.push_back(p0);
 	controlPts.push_back(p1);
@@ -84,12 +86,65 @@ void BezierCurve::draw(GLuint shader, glm::mat4 model) {
 
 	// draw spheres at control points
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.06f));
+	/*
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
 	sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
-	sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+	// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
 	sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
-	sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);	
+	sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+	*/
+
+	// change color of the selective control point
+	switch (active) {
+	case 0:
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+		sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+		// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+		sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+		sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+		break;
+
+	case 1:
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+		sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+		// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+		sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+		sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+		break;
+
+	case 2:
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+		sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+		// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+		sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+		sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+		break;
+		
+	case 3:
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+		sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 1, 1)));
+		// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+		sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+		sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+		break;
+		
+	default:
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+		sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+		glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+		sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+		sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+		break;
+	}
 }
 
 // update points

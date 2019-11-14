@@ -85,6 +85,9 @@ void Track::update() {
 		curves[7]->controlPts[1] = curves[6]->getNewPt();
 		curves[0]->controlPts[1] = curves[7]->getNewPt();
 		break;
+
+	default:
+		break;
 	}
 	curves[currCurve]->update();
 	curves[(currCurve + 1) % 8]->update();

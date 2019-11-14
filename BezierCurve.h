@@ -26,6 +26,7 @@ private:
 	Geometry* sphere2;			 // representing control point 2
 	Geometry* sphere3;			 // representing control point 3
 	Geometry* sphere4;			 // representing control point 4
+	int active;				 // keep track of the selected control point
 public:
 	std::vector<glm::vec3> controlPts;
 
@@ -35,6 +36,7 @@ public:
 	void draw(GLuint shader, glm::mat4 model);
 	glm::vec3 getNewPt() { return 2.0f * controlPts[3] - controlPts[2]; }
 	void update();
+	void setActive(int a) { active = a; }
 };
 
 #endif

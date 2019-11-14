@@ -344,7 +344,8 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {	
-	
+	// pass in the active sphere to BezierCurve to highlight
+	track->curves[curveCount]->setActive(controlPtCount);
 	/*
 	if (culling) {
 		int cullNumber = 0;
@@ -650,8 +651,8 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 	}
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 		controlPtCount++;
-		if (controlPtCount > 3) {
-			controlPtCount = 1;
+		if (controlPtCount > 2) {
+			controlPtCount = 0;
 			curveCount++;
 		}
 
@@ -677,12 +678,17 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 	std::cout << "cc: " << curveCount << std::endl;
 	std::cout << "cpc: " << controlPtCount << std::endl;
 
-	/*
+	// update the current curve in track.cpp, but not the 2nd control point since it offsets the change?
 	if (controlPtCount != 1) {
-		// update the current curve in track.cpp
-		track->setCurrCurve(curveCount);
+		
 	}
-	*/
+	track->setCurrCurve(curveCount);
+
+
+	// pass in the active sphere to BezierCurve to highlight
+	track->curves[curveCount]->setActive(controlPtCount);
+	track->curves[nextCount]->setActive(4);
+	track->curves[prevCount]->setActive(4);
 }
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
