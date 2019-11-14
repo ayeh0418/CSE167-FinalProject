@@ -28,10 +28,44 @@ Track::Track() {
 	curves.push_back(bCurve6);
 	curves.push_back(bCurve7);
 	curves.push_back(bCurve8);
+
+	for (glm::vec3 p : bCurve1->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve2->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve3->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve4->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve5->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve6->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve7->getControl()) {
+		controlPts.push_back(p);
+	}
+
+	for (glm::vec3 p : bCurve8->getControl()) {
+		controlPts.push_back(p);
+	}
 }
 
 Track::~Track() {
-
+	for (BezierCurve* bc : curves) {
+		delete bc;
+	}
 }
 
 void Track::draw(GLuint shader, glm::mat4 model) {

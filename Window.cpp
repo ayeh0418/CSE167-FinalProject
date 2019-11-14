@@ -593,6 +593,9 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 		glfwGetCursorPos(window, &xpos, &ypos);
 		lastPos = trackBallMapping(glm::vec2(xpos, ypos));
 	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		
+	}
 	else if (action == GLFW_RELEASE) {
 		pressed = false;
 	}

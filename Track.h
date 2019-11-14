@@ -20,6 +20,7 @@ class Track
 {
 private:
 	std::vector<BezierCurve *> curves;
+	std::vector<glm::vec3> controlPts;
 public:
 	Track();
 	~Track();

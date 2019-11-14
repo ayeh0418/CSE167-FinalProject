@@ -33,7 +33,7 @@ public:
 	glm::vec3 getPoint(float t);
 	void draw(GLuint shader, glm::mat4 model);
 	glm::vec3 getNewPt() { return 2.0f * controlPts[3] - controlPts[2]; }
-	// void set2ndPt(glm::vec3 secPt) { controlPts[1] = secPt; }
+	std::vector<glm::vec3> getControl() { return controlPts; }
 };
 
 #endif
