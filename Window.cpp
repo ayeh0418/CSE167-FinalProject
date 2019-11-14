@@ -10,7 +10,7 @@ Geometry * Window::antenna;
 Geometry * Window::eyeball;
 Geometry * Window::limb;
 Geometry * Window::sphere;
-BezierCurve * Window::track;
+Track * Window::track;
 Transform * Window::robot;
 Transform * Window::squad;
 Transform* Window::head2Robot;
@@ -118,7 +118,7 @@ bool Window::initializeObjects()
 	*/
 	// std::cout << env->getTexture() << std::endl;
 	sphere = new Geometry("sphere.obj", env->getTexture());
-	track = new BezierCurve(glm::vec3(10, 0, 10), glm::vec3(10, 0, -10), glm::vec3(-10, 0, 10), glm::vec3(-10, 0, -10));
+	track = new Track();
 	/*
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);

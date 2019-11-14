@@ -16,13 +16,14 @@
 #include "BezierCurve.h"
 #include "Geometry.h"
 
-class Track : public Geometry
+class Track
 {
 private:
-	std::vector<BezierCurve> curves;
+	std::vector<BezierCurve *> curves;
 public:
 	Track();
 	~Track();
+	void draw(GLuint shader, glm::mat4 model);
 };
 
 #endif

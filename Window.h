@@ -26,6 +26,7 @@
 #include "Transform.h"
 #include "Skybox.h"
 #include "BezierCurve.h"
+#include "Track.h"
 
 class Window
 {
@@ -38,7 +39,7 @@ public:
 	static Geometry * eyeball;
 	static Geometry * limb;
 	static Geometry * sphere;
-	static BezierCurve * track;
+	static Track * track;
 	static Transform * robot;
 	static Transform * squad;
 	static Transform * head2Robot;
