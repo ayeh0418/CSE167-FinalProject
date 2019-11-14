@@ -23,7 +23,6 @@ void Geometry::draw(GLuint programShader, glm::mat4 C) {
 	model = C;
 
 	glUniformMatrix4fv(glGetUniformLocation(programShader, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniform3fv(glGetUniformLocation(programShader, "color"), 1, glm::value_ptr(color));
 
 	// Bind to the VAO.
 	glBindVertexArray(vao);

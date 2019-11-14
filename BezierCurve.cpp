@@ -14,7 +14,7 @@ BezierCurve::BezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
 	controlPts.push_back(p2);
 	controlPts.push_back(p3);
 
-	for (int i = 0; i < 150; i++) {
+	for (int i = 0; i <= 150; i++) {
 		// std::cout << getPoint(i / 150.0f).x << " " << getPoint(i / 150.0f).y << " " << getPoint(i / 150.0f).z << std::endl;
 		pts.push_back(getPoint(i / 150.0f));
 	}
@@ -40,6 +40,11 @@ BezierCurve::BezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	// Unbind from the VAO.
 	glBindVertexArray(0);
+
+	sphere1 = new Geometry("sphere.obj", 0);
+	sphere2 = new Geometry("sphere.obj", 0);
+	sphere3 = new Geometry("sphere.obj", 0);
+	sphere4 = new Geometry("sphere.obj", 0);
 }
 
 BezierCurve::~BezierCurve() {
@@ -55,10 +60,22 @@ glm::vec3 BezierCurve::getPoint(float t) {
 void BezierCurve::draw(GLuint shader, glm::mat4 model) {
 	// glUseProgram(trackShader);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 0, 0)));
 	// Bind to the VAO.
 	glBindVertexArray(vao);
-	glDrawArrays(GL_LINE_STRIP, 0, pts.size());
+	glLineWidth(2);
+	glDrawArrays(GL_LINE_STRIP, 0, 151);
 	// glDrawElements(GL_LINE_STRIP, pts.size(), GL_UNSIGNED_INT, 0);
 	// Unbind from the VAO.
 	glBindVertexArray(0);
+
+	
+	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
+	sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
+	sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
+	sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
+	sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
+	
 }

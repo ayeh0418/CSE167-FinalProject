@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include "shader.h"
+#include "Geometry.h"
 
 class BezierCurve
 {
@@ -21,7 +22,11 @@ private:
 	glm::vec3 a, b, c, d;
 	std::vector<glm::vec3> pts;
 	std::vector<glm::vec3> controlPts;
-	GLuint vao, vbo;
+	GLuint vao, vao2, vbo, vbo2;
+	Geometry* sphere1;
+	Geometry* sphere2;
+	Geometry* sphere3;
+	Geometry* sphere4;
 public:
 	BezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 	~BezierCurve();
