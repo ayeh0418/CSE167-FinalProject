@@ -1,6 +1,8 @@
 #include "Track.h"
 
 Track::Track() {
+	currCurve = 0;
+
 	glm::vec3 temp = glm::vec3(0, 0, 0);
 	BezierCurve* bCurve1 = new BezierCurve(glm::vec3(-7, 0, 0), glm::vec3(-6, 0, -1), glm::vec3(-5, 1, -2), glm::vec3(-4, 1, -3));
 	temp = bCurve1->getNewPt();
@@ -40,4 +42,50 @@ void Track::draw(GLuint shader, glm::mat4 model) {
 	for (BezierCurve* bc : curves) {
 		bc->draw(shader, glm::mat4(1.0f));
 	}
+}
+
+void Track::update() {
+	switch (currCurve) {
+	case 0:
+		curves[0]->controlPts[1] = curves[7]->getNewPt();
+		curves[1]->controlPts[1] = curves[0]->getNewPt();
+		break;
+
+	case 1:
+		curves[1]->controlPts[1] = curves[0]->getNewPt();
+		curves[2]->controlPts[1] = curves[1]->getNewPt();
+		break;
+
+	case 2:
+		curves[2]->controlPts[1] = curves[1]->getNewPt();
+		curves[3]->controlPts[1] = curves[2]->getNewPt();
+		break;
+
+	case 3:
+		curves[3]->controlPts[1] = curves[2]->getNewPt();
+		curves[4]->controlPts[1] = curves[3]->getNewPt();
+		break;
+
+	case 4:
+		curves[4]->controlPts[1] = curves[3]->getNewPt();
+		curves[5]->controlPts[1] = curves[4]->getNewPt();
+		break;
+
+	case 5:
+		curves[5]->controlPts[1] = curves[4]->getNewPt();
+		curves[6]->controlPts[1] = curves[5]->getNewPt();
+		break;
+
+	case 6:
+		curves[6]->controlPts[1] = curves[5]->getNewPt();
+		curves[7]->controlPts[1] = curves[6]->getNewPt();
+		break;
+
+	case 7:
+		curves[7]->controlPts[1] = curves[6]->getNewPt();
+		curves[0]->controlPts[1] = curves[7]->getNewPt();
+		break;
+	}
+	curves[currCurve]->update();
+	curves[(currCurve + 1) % 8]->update();
 }

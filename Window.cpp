@@ -84,8 +84,8 @@ Skybox * Window::env;
 
 int Window::controlPtCount = 0;
 int Window::curveCount = 0;
-int Window::prevCount = 0;
-int Window::nextCount = 0;
+int Window::prevCount = 7;
+int Window::nextCount = 1;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -528,7 +528,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// shift key change direction
 			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 				track->curves[curveCount]->controlPts[controlPtCount].x--;
-				/*
+
 				// update the connected point if it's a tangent point
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].x--;
@@ -536,83 +536,75 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].x--;
 				}
-				*/
+				
 			}
 			else { 
 				track->curves[curveCount]->controlPts[controlPtCount].x++; 
-				/*
+				
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].x++;
 				}
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].x++;
 				}
-				*/
 			}
-
-			// track->curves[curveCount]->update(); // update the curve
 			break;
 
 		// move the control point in y direction
 		case GLFW_KEY_Y:
 			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 				track->curves[curveCount]->controlPts[controlPtCount].y--;
-				/*
+			
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].y--;
 				}
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].y--;
 				}
-				*/
 			}
 			else {
 				track->curves[curveCount]->controlPts[controlPtCount].y++;
-				/*
+				
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].y++;
 				}
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].y++;
 				}
-				*/
 			}
-
-			// track->curves[curveCount]->update();
 			break;
 
 		// move the control point in z direction
 		case GLFW_KEY_Z:
 			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 				track->curves[curveCount]->controlPts[controlPtCount].z--;
-				/*
+
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].z--;
 				}
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].z--;
 				}
-				*/
 			}
 			else {
 				track->curves[curveCount]->controlPts[controlPtCount].z++;
-				/*
+
 				if (controlPtCount == 0) {
 					track->curves[prevCount]->controlPts[3].z++;
 				}
 				else if (controlPtCount == 3) {
 					track->curves[nextCount]->controlPts[0].z++;
 				}
-				*/
 			}	
 			break;
-
+		
 		default:
 			break;
 		}
 		track->curves[curveCount]->update();
 		track->curves[nextCount]->update();
 		track->curves[prevCount]->update();
+		track->update();
 	}
 }
 
@@ -648,7 +640,7 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 
 		controlPtCount--;
 		if (controlPtCount < 0) {
-			controlPtCount = 3;
+			controlPtCount = 2;
 			curveCount--;
 		}
 
@@ -659,7 +651,7 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 		controlPtCount++;
 		if (controlPtCount > 3) {
-			controlPtCount = 0;
+			controlPtCount = 1;
 			curveCount++;
 		}
 
@@ -681,6 +673,16 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 	if (nextCount > 7) {
 		nextCount = 0;
 	}
+
+	std::cout << "cc: " << curveCount << std::endl;
+	std::cout << "cpc: " << controlPtCount << std::endl;
+
+	/*
+	if (controlPtCount != 1) {
+		// update the current curve in track.cpp
+		track->setCurrCurve(curveCount);
+	}
+	*/
 }
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

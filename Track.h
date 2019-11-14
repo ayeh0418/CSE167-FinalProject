@@ -19,14 +19,15 @@
 class Track
 {
 private:
-	
-	// std::vector<glm::vec3> controlPts;
+	int currCurve;
 public:
 	std::vector<BezierCurve*> curves;
 
 	Track();
 	~Track();
 	void draw(GLuint shader, glm::mat4 model);
+	void update();
+	void setCurrCurve(int cc) { currCurve = cc; }
 };
 
 #endif
