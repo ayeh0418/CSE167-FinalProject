@@ -19,9 +19,11 @@
 class Track
 {
 private:
-	std::vector<BezierCurve *> curves;
-	std::vector<glm::vec3> controlPts;
+	
+	// std::vector<glm::vec3> controlPts;
 public:
+	std::vector<BezierCurve*> curves;
+
 	Track();
 	~Track();
 	void draw(GLuint shader, glm::mat4 model);

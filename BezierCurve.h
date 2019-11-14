@@ -19,21 +19,22 @@
 class BezierCurve
 {
 private:
-	glm::vec3 a, b, c, d;
-	std::vector<glm::vec3> pts;
-	std::vector<glm::vec3> controlPts;
-	GLuint vao, vao2, vbo, vbo2;
-	Geometry* sphere1;
-	Geometry* sphere2;
-	Geometry* sphere3;
-	Geometry* sphere4;
+	glm::vec3 a, b, c, d;		 // weights
+	std::vector<glm::vec3> pts;  // points on the curve
+	GLuint vao, vao2, vbo, vbo2; // buffers
+	Geometry* sphere1;			 // representing control point 1
+	Geometry* sphere2;			 // representing control point 2
+	Geometry* sphere3;			 // representing control point 3
+	Geometry* sphere4;			 // representing control point 4
 public:
+	std::vector<glm::vec3> controlPts;
+
 	BezierCurve(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 	~BezierCurve();
 	glm::vec3 getPoint(float t);
 	void draw(GLuint shader, glm::mat4 model);
 	glm::vec3 getNewPt() { return 2.0f * controlPts[3] - controlPts[2]; }
-	std::vector<glm::vec3> getControl() { return controlPts; }
+	void update();
 };
 
 #endif

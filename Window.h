@@ -98,6 +98,10 @@ public:
 	static bool culling;
 
 	static Skybox * env;
+	static int curveCount;
+	static int prevCount;
+	static int nextCount;
+	static int controlPtCount;
 
 	static bool initializeProgram();
 	static bool initializeObjects();

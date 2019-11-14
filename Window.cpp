@@ -82,6 +82,11 @@ bool Window::culling = false;
 
 Skybox * Window::env;
 
+int Window::controlPtCount = 0;
+int Window::curveCount = 0;
+int Window::prevCount = 0;
+int Window::nextCount = 0;
+
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	program = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
@@ -488,11 +493,9 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	track->draw(trackProgram, identity);
-
 	
 	glUseProgram(program);
 	sphere->draw(program, identity);
-
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -512,54 +515,104 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	
 	// Check for a key press.
 	if (action == GLFW_PRESS)
-	{
-		
+	{	
 		switch (key)
 		{
 		case GLFW_KEY_ESCAPE:
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);				
 			break;
-		/*
-		// Show the spheres.
-		case GLFW_KEY_S:
-			if (sphere->getShow()) {
-				sphere->setShow(false);
-			}
-			else {
-				sphere->setShow(true);
-			}
-			break;
-		// culling mode
-		case GLFW_KEY_C:
-			if (culling) {
-				for (Node* child : squad->getChildren()) {
-					((Transform*)child)->setShowRobot(true);
+
+		// move the control point in x direction
+		case GLFW_KEY_X:
+			// shift key change direction
+			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+				track->curves[curveCount]->controlPts[controlPtCount].x--;
+				/*
+				// update the connected point if it's a tangent point
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].x--;
+				} 
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].x--;
 				}
-				squad->draw(program, glm::mat4(1.0f));
-				culling = false;
-				
+				*/
+			}
+			else { 
+				track->curves[curveCount]->controlPts[controlPtCount].x++; 
+				/*
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].x++;
+				}
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].x++;
+				}
+				*/
+			}
+
+			// track->curves[curveCount]->update(); // update the curve
+			break;
+
+		// move the control point in y direction
+		case GLFW_KEY_Y:
+			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+				track->curves[curveCount]->controlPts[controlPtCount].y--;
+				/*
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].y--;
+				}
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].y--;
+				}
+				*/
 			}
 			else {
-				culling = true;
+				track->curves[curveCount]->controlPts[controlPtCount].y++;
+				/*
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].y++;
+				}
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].y++;
+				}
+				*/
 			}
+
+			// track->curves[curveCount]->update();
 			break;
-		// demo mode
-		case GLFW_KEY_D:
-			if (maxFov == 75) {
-				maxFov = 60;
-				fov = maxFov;
+
+		// move the control point in z direction
+		case GLFW_KEY_Z:
+			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+				track->curves[curveCount]->controlPts[controlPtCount].z--;
+				/*
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].z--;
+				}
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].z--;
+				}
+				*/
 			}
 			else {
-				maxFov = 75;
-				fov = maxFov;
-			}
+				track->curves[curveCount]->controlPts[controlPtCount].z++;
+				/*
+				if (controlPtCount == 0) {
+					track->curves[prevCount]->controlPts[3].z++;
+				}
+				else if (controlPtCount == 3) {
+					track->curves[nextCount]->controlPts[0].z++;
+				}
+				*/
+			}	
 			break;
-		*/
+
 		default:
 			break;
 		}
-		
+		track->curves[curveCount]->update();
+		track->curves[nextCount]->update();
+		track->curves[prevCount]->update();
 	}
 }
 
@@ -592,12 +645,41 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 		pressed = true;
 		glfwGetCursorPos(window, &xpos, &ypos);
 		lastPos = trackBallMapping(glm::vec2(xpos, ypos));
+
+		controlPtCount--;
+		if (controlPtCount < 0) {
+			controlPtCount = 3;
+			curveCount--;
+		}
+
+		if (curveCount < 0) {
+			curveCount = 7;
+		}
 	}
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-		
+		controlPtCount++;
+		if (controlPtCount > 3) {
+			controlPtCount = 0;
+			curveCount++;
+		}
+
+		if (curveCount > 7) {
+			curveCount = 0;
+		}
 	}
 	else if (action == GLFW_RELEASE) {
 		pressed = false;
+	}
+
+	prevCount = curveCount - 1;
+	nextCount = curveCount + 1;
+
+	if (prevCount < 0) {
+		prevCount = 7;
+	}
+
+	if (nextCount > 7) {
+		nextCount = 0;
 	}
 }
 
