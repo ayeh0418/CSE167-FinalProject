@@ -89,6 +89,9 @@ int Window::nextCount = 1;
 int Window::curveCountUpdate = 0;
 glm::vec3 Window::lastPt;
 bool Window::pause = true;
+double Window::oldTime = 0.0;
+double Window::newTime = 0.0;
+double Window::leftover = 0.0;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -207,6 +210,7 @@ void Window::cleanUp()
 	// delete squad;
 	delete env;
 	delete sphere;
+	// delete sphere2World;
 	delete track;
 	// Delete the shader program.
 	glDeleteProgram(program);
@@ -289,15 +293,32 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
+	// glm::mat4 translate;
+
 	if (!pause) {
 		timer++;
 	}
 	if (timer > 750) {
 		timer = 0;
 		curveCountUpdate = (curveCountUpdate + 1) % 8;
-	}
+	}												  
 
 	glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 750.0f);
+
+	/*
+	newTime = glfwGetTime();
+	double deltaTime = newTime - oldTime;
+	oldTime = newTime;
+	double traveled = 2 * deltaTime;
+	double distance = glm::length(tmp - lastPt);
+	leftover = distance - traveled;
+
+	if (leftover < 0) {
+		glm::vec3 midPt = track->curves[curveCountUpdate]->getPoint((distance + leftover) / distance);
+		translate = glm::translate(glm::mat4(1.0f), tmp - midPt);
+	} else {
+	*/
+
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
 	sphere2World->update(translate);
 

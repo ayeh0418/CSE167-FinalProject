@@ -105,6 +105,9 @@ public:
 	static int curveCountUpdate;
 	static glm::vec3 lastPt;
 	static bool pause;
+	static double oldTime;
+	static double newTime;
+	static double leftover;
 
 	static bool initializeProgram();
 	static bool initializeObjects();

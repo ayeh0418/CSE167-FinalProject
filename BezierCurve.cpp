@@ -86,14 +86,6 @@ void BezierCurve::draw(GLuint shader, glm::mat4 model) {
 
 	// draw spheres at control points
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.06f));
-	/*
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(1, 0, 0)));
-	sphere1->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[0]) * scale);
-	// sphere4->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[3]) * scale);
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(glm::vec3(0, 1, 0)));
-	sphere2->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[1]) * scale);
-	sphere3->draw(shader, glm::translate(glm::mat4(1.0f), controlPts[2]) * scale);
-	*/
 
 	// change color of the selective control point
 	switch (active) {
