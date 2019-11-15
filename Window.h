@@ -103,6 +103,8 @@ public:
 	static int nextCount;
 	static int controlPtCount;
 	static int curveCountUpdate;
+	static glm::vec3 lastPt;
+	static bool pause;
 
 	static bool initializeProgram();
 	static bool initializeObjects();

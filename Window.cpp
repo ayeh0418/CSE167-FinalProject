@@ -87,6 +87,8 @@ int Window::curveCount = 0;
 int Window::prevCount = 7;
 int Window::nextCount = 1;
 int Window::curveCountUpdate = 0;
+glm::vec3 Window::lastPt;
+bool Window::pause = true;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -116,6 +118,7 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects()
 {
 	env = new Skybox(1.0f);
+	track = new Track();
 	/*
 	head = new Geometry("head_s.obj");
 	antenna = new Geometry("antenna_s.obj");
@@ -124,7 +127,10 @@ bool Window::initializeObjects()
 	*/
 	// std::cout << env->getTexture() << std::endl;
 	sphere = new Geometry("sphere.obj", env->getTexture());
-	track = new Track();
+	lastPt = track->curves[0]->getPoint(0);
+	sphere2World = new Transform(glm::translate(glm::mat4(1.0f), lastPt));
+	sphere2World->addChild(sphere);
+	
 	/*
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
@@ -283,13 +289,19 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
-	timer++;
-	if (timer > 150) {
+	if (!pause) {
+		timer++;
+	}
+	if (timer > 750) {
 		timer = 0;
 		curveCountUpdate = (curveCountUpdate + 1) % 8;
 	}
 
-	glm::vec3 tmp = track->curves[curveCount]->getPoint(timer);
+	glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 750.0f);
+	glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
+	sphere2World->update(translate);
+
+	lastPt = tmp;
 	/*
 	timer++;
 	if (timer % 60 == 0) {
@@ -504,7 +516,7 @@ void Window::displayCallback(GLFWwindow* window)
 	track->draw(trackProgram, identity);
 	
 	glUseProgram(program);
-	sphere->draw(program, identity);
+	sphere2World->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -586,6 +598,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 					track->curves[prevCount]->controlPts[3].z++;
 				}
 			}	
+			break;
+
+		// pause the sphere's movement
+		case GLFW_KEY_P:
+			pause = !pause;
 			break;
 		
 		default:
