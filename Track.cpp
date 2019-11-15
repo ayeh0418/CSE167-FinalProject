@@ -47,43 +47,83 @@ void Track::draw(GLuint shader, glm::mat4 model) {
 void Track::update() {
 	switch (currCurve) {
 	case 0:
-		curves[0]->controlPts[1] = curves[7]->getNewPt();
-		curves[1]->controlPts[1] = curves[0]->getNewPt();
+		if (currPt != 1) {
+			curves[0]->controlPts[1] = curves[7]->getNewPt();
+			curves[1]->controlPts[1] = curves[0]->getNewPt();
+		}
+		else {
+			curves[7]->controlPts[2] = curves[0]->getNewPtPrev();
+		}
 		break;
 
 	case 1:
-		curves[1]->controlPts[1] = curves[0]->getNewPt();
-		curves[2]->controlPts[1] = curves[1]->getNewPt();
+		if (currPt != 1) {
+			curves[1]->controlPts[1] = curves[0]->getNewPt();
+			curves[2]->controlPts[1] = curves[1]->getNewPt();
+		}
+		else {
+			curves[0]->controlPts[2] = curves[1]->getNewPtPrev();
+		}
 		break;
 
 	case 2:
-		curves[2]->controlPts[1] = curves[1]->getNewPt();
-		curves[3]->controlPts[1] = curves[2]->getNewPt();
+		if (currPt != 1) {
+			curves[2]->controlPts[1] = curves[1]->getNewPt();
+			curves[3]->controlPts[1] = curves[2]->getNewPt();
+		}
+		else {
+			curves[1]->controlPts[2] = curves[2]->getNewPtPrev();
+		}
 		break;
 
 	case 3:
-		curves[3]->controlPts[1] = curves[2]->getNewPt();
-		curves[4]->controlPts[1] = curves[3]->getNewPt();
+		if (currPt != 1) {
+			curves[3]->controlPts[1] = curves[2]->getNewPt();
+			curves[4]->controlPts[1] = curves[3]->getNewPt();
+		}
+		else {
+			curves[2]->controlPts[2] = curves[3]->getNewPtPrev();
+		}
 		break;
 
 	case 4:
-		curves[4]->controlPts[1] = curves[3]->getNewPt();
-		curves[5]->controlPts[1] = curves[4]->getNewPt();
+		if (currPt != 1) {
+			curves[4]->controlPts[1] = curves[3]->getNewPt();
+			curves[5]->controlPts[1] = curves[4]->getNewPt();
+		}
+		else {
+			curves[3]->controlPts[2] = curves[4]->getNewPtPrev();
+		}
 		break;
 
 	case 5:
-		curves[5]->controlPts[1] = curves[4]->getNewPt();
-		curves[6]->controlPts[1] = curves[5]->getNewPt();
+		if (currPt != 1) {
+			curves[5]->controlPts[1] = curves[4]->getNewPt();
+			curves[6]->controlPts[1] = curves[5]->getNewPt();
+		}
+		else {
+			curves[4]->controlPts[2] = curves[5]->getNewPtPrev();
+		}
 		break;
 
 	case 6:
-		curves[6]->controlPts[1] = curves[5]->getNewPt();
-		curves[7]->controlPts[1] = curves[6]->getNewPt();
+		if (currPt != 1) {
+			curves[6]->controlPts[1] = curves[5]->getNewPt();
+			curves[7]->controlPts[1] = curves[6]->getNewPt();
+		}
+		else {
+			curves[5]->controlPts[2] = curves[6]->getNewPtPrev();
+		}
 		break;
 
 	case 7:
-		curves[7]->controlPts[1] = curves[6]->getNewPt();
-		curves[0]->controlPts[1] = curves[7]->getNewPt();
+		if (currPt != 1) {
+			curves[7]->controlPts[1] = curves[6]->getNewPt();
+			curves[0]->controlPts[1] = curves[7]->getNewPt();
+		}
+		else {
+			curves[6]->controlPts[2] = curves[7]->getNewPtPrev();
+		}
 		break;
 
 	default:
@@ -91,4 +131,5 @@ void Track::update() {
 	}
 	curves[currCurve]->update();
 	curves[(currCurve + 1) % 8]->update();
+	curves[(currCurve + 7) % 8]->update();
 }

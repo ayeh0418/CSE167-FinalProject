@@ -20,6 +20,7 @@ class Track
 {
 private:
 	int currCurve;
+	int currPt;
 public:
 	std::vector<BezierCurve*> curves;
 
@@ -28,6 +29,7 @@ public:
 	void draw(GLuint shader, glm::mat4 model);
 	void update();
 	void setCurrCurve(int cc) { currCurve = cc; }
+	void setCurrPt(int cp) { currPt = cp; }
 };
 
 #endif

@@ -102,6 +102,7 @@ public:
 	static int prevCount;
 	static int nextCount;
 	static int controlPtCount;
+	static int curveCountUpdate;
 
 	static bool initializeProgram();
 	static bool initializeObjects();
