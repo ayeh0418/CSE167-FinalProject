@@ -108,6 +108,7 @@ public:
 	static double oldTime;
 	static double newTime;
 	static double leftover;
+	static bool camView;
 
 	static bool initializeProgram();
 	static bool initializeObjects();

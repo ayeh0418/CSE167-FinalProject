@@ -92,6 +92,7 @@ bool Window::pause = true;
 double Window::oldTime = 0.0;
 double Window::newTime = 0.0;
 double Window::leftover = 0.0;
+bool Window::camView = false;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -134,6 +135,8 @@ bool Window::initializeObjects()
 	sphere2World = new Transform(glm::translate(glm::mat4(1.0f), lastPt));
 	sphere2World->addChild(sphere);
 	
+
+
 	/*
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
@@ -321,7 +324,19 @@ void Window::idleCallback()
 
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
 	sphere2World->update(translate);
-
+	
+	if (camView) {
+		center = tmp;
+		eye = lastPt;
+		view = glm::lookAt(eye, center, up);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	}
+	else {
+		eye = glm::vec3(0, 2, 10);
+		center = glm::vec3(0, 0, 0);
+		view = glm::lookAt(eye, center, up);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	}
 	lastPt = tmp;
 	/*
 	timer++;
@@ -626,6 +641,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			pause = !pause;
 			break;
 		
+		case GLFW_KEY_C:
+			camView = !camView;
+			break;
+
 		default:
 			break;
 		}
