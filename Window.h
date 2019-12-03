@@ -34,12 +34,32 @@ public:
 	static int width;
 	static int height;
 	static const char* windowTitle;
-	static Geometry * head;
-	static Geometry * antenna;
-	static Geometry * eyeball;
-	static Geometry * limb;
+
+	static Geometry* eyeball;
 	static Geometry * sphere;
 	static Track * track;
+
+	static Geometry* head;
+	static Geometry* body;
+	static Geometry* antenna;
+	static Geometry* wind;
+	static Transform * spaceship;
+	static Transform * ship2world;
+	static Transform * body2ship;
+	static Transform * head2ship;
+	static Transform * head22ship;
+	static Transform * wind12ship;
+	static Transform * wind22ship;
+	static Transform * wind32ship;
+	static Transform * wind42ship;
+	static Transform * antenna12ship;
+	static Transform * antenna22ship;
+	static Transform * antenna32ship;
+	static Transform * antenna42ship;
+	static bool turnL, turnR;
+
+
+
 	static Transform * robot;
 	static Transform * squad;
 	static Transform * head2Robot;

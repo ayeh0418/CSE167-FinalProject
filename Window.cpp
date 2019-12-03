@@ -5,11 +5,30 @@ int Window::height;
 
 const char* Window::windowTitle = "Project 3";
 
-Geometry * Window::head;
-Geometry * Window::antenna;
+
 Geometry * Window::eyeball;
-Geometry * Window::limb;
 Geometry * Window::sphere;
+
+Geometry* Window::head;
+Geometry* Window::antenna;
+Geometry* Window::wind;
+Geometry* Window::body;
+Transform* Window::spaceship;
+Transform* Window::ship2world;
+Transform* Window::body2ship;
+Transform* Window::head2ship;
+Transform* Window::head22ship;
+Transform* Window::wind12ship;
+Transform* Window::wind22ship;
+Transform* Window::wind32ship;
+Transform* Window::wind42ship;
+Transform* Window::antenna12ship;
+Transform* Window::antenna22ship;
+Transform* Window::antenna32ship;
+Transform* Window::antenna42ship;
+bool Window::turnL = false;
+bool Window::turnR = false;
+
 Track * Window::track;
 Transform * Window::robot;
 Transform * Window::squad;
@@ -29,7 +48,7 @@ Transform* Window::sphere2World;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-glm::vec3 Window::eye(0, 2, 10); // Camera position. (0, 2, 10)
+glm::vec3 Window::eye(0, 3, 10); // Camera position. (0, 2, 10)
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
@@ -122,90 +141,54 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects()
 {
 	env = new Skybox(1.0f);
-	track = new Track();
-	/*
-	head = new Geometry("head_s.obj");
-	antenna = new Geometry("antenna_s.obj");
-	eyeball = new Geometry("eyeball_s.obj");
-	limb = new Geometry("limb_s.obj");
-	*/
-	// std::cout << env->getTexture() << std::endl;
-	sphere = new Geometry("sphere.obj", env->getTexture());
-	lastPt = track->curves[0]->getPoint(0);
-	sphere2World = new Transform(glm::translate(glm::mat4(1.0f), lastPt));
-	sphere2World->addChild(sphere);
+
+	head = new Geometry("head_s.obj", env->getTexture());
+	antenna = new Geometry("antenna_s.obj", env->getTexture());
+	body = new Geometry("body_s.obj", env->getTexture());
+	wind = new Geometry("limb_s.obj", env->getTexture());
 	
-
-
-	/*
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
-	glm::mat4 antennaScaler = glm::scale(glm::vec3(0.35, 0.3, 0.35));
-	glm::mat4 antennaScaler2 = glm::scale(glm::vec3(0.35, 0.15, 0.35));
-	glm::mat4 eyeScaler = glm::scale(glm::vec3(2.0, 2.0, 2.0));
-	glm::mat4 sphereScaler = glm::scale(glm::vec3(2.5, 2.5, 2.5));
-	glm::mat4 antennaRot = glm::rotate(identity, -70.0f, glm::vec3(0, 0, 1));
-	glm::mat4 arm1Rot = glm::rotate(identity, 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 arm2Rot = glm::rotate(identity, -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 arm3Rot = glm::rotate(identity, 90.0f, glm::vec3(0, 0, 1));
-	glm::mat4 arm4Rot = glm::rotate(identity, -90.0f, glm::vec3(0, 0, 1));
-	glm::mat4 arm5Rot = glm::rotate(identity, 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 arm6Rot = glm::rotate(identity, -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+	glm::mat4 wind1Scaler = glm::scale(glm::vec3(35, 2, 0.5));
+	glm::mat4 wind2Scaler = glm::scale(glm::vec3(0.5, 2, 35));
+	glm::mat4 antennaScaler = glm::scale(glm::vec3(1, 0.8, 1));
+	glm::mat4 shipScaler = glm::scale(glm::vec3(0.8, 0.8, 0.8));
+	
+	glm::mat4 head2Rot = glm::rotate(identity, glm::radians(180.0f), glm::vec3(0, 0, 1));
+	glm::mat4 shipRot = glm::rotate(identity, glm::radians(45.0f), glm::vec3(0, 1, 0));
+	glm::mat4 shipRot2 = glm::rotate(identity, glm::radians(90.0f), glm::vec3(-1, 0, 0));
 
-	set
+	spaceship = new Transform(identity * shipRot2 * shipRot * shipScaler);
+	body2ship = new Transform(identity);
+	head2ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 0)));
+	head22ship = new Transform(glm::translate(identity, glm::vec3(0, -1, 0)) * head2Rot);
+	wind12ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind1Scaler);
+	wind22ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind2Scaler);
+	antenna12ship = new Transform(glm::translate(identity, glm::vec3(-4.75, 1, 0)) * antennaScaler);
+	antenna22ship = new Transform(glm::translate(identity, glm::vec3(4.75, 1, 0)) * antennaScaler);
+	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 1, -4.75)) * antennaScaler);
+	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 4.75)) * antennaScaler);
+	
+	head2ship->addChild(head);
+	head22ship->addChild(head);
+	body2ship->addChild(body);
+	wind12ship->addChild(wind);
+	wind22ship->addChild(wind);
+	antenna12ship->addChild(antenna);
+	antenna22ship->addChild(antenna);
+	antenna32ship->addChild(antenna);
+	antenna42ship->addChild(antenna);
+	
+	spaceship->addChild(head2ship);
+	spaceship->addChild(head22ship);
+	spaceship->addChild(body2ship);
+	spaceship->addChild(wind12ship);
+	spaceship->addChild(wind22ship);
+	spaceship->addChild(antenna12ship);
+	spaceship->addChild(antenna22ship);
+	spaceship->addChild(antenna32ship);
+	spaceship->addChild(antenna42ship);
 
-	robot = new Transform(identity);
-	squad = new Transform(identity);ss
-	// arms2Robot = new Transform(identity);
-	head2Robot = new Transform(glm::translate(identity, glm::vec3(0, 0.5, 0)));
-	antenna12Robot = new Transform(glm::translate(identity, glm::vec3(0, 1.35, 0)) * antennaScaler);
-	antenna22Robot = new Transform(glm::translate(identity, glm::vec3(0.25, 2.33, 0)) * antennaRot * antennaScaler2);
-	eyeballL2Robot = new Transform(glm::translate(identity, glm::vec3(-0.25, 0.9, 0.85)));
-	eyeballR2Robot = new Transform(glm::translate(identity, glm::vec3(0.25, 0.9, 0.85)));	
-	arm12Robot = new Transform(glm::translate(identity, glm::vec3(-1, 0.2, 1)) * arm1Rot);
-	arm22Robot = new Transform(glm::translate(identity, glm::vec3(1, 0.2, 1)) * arm2Rot);
-	arm32Robot = new Transform(glm::translate(identity, glm::vec3(-1.3, 0.2, 0)) * arm3Rot);
-	arm42Robot = new Transform(glm::translate(identity, glm::vec3(1.3, 0.2, 0)) * arm4Rot);
-	arm52Robot = new Transform(glm::translate(identity, glm::vec3(-1, 0.2, -1)) * arm5Rot);
-	arm62Robot = new Transform(glm::translate(identity, glm::vec3(1, 0.2, -1)) * arm6Rot);
-	sphere2Robot = new Transform(glm::translate(identity, glm::vec3(0, 0.2, 0)) * sphereScaler);
-
-	robot->addChild(head2Robot);
-	robot->addChild(antenna12Robot);
-	robot->addChild(antenna22Robot);
-	robot->addChild(eyeballL2Robot);
-	robot->addChild(eyeballR2Robot);
-	robot->addChild(arm12Robot);
-	robot->addChild(arm22Robot);
-	robot->addChild(arm32Robot);
-	robot->addChild(arm42Robot);
-	robot->addChild(arm52Robot);
-	robot->addChild(arm62Robot);
-	robot->addChild(sphere2Robot);
-	// robot->addChild(arms2Robot);
-	head2Robot->addChild(head);
-	antenna12Robot->addChild(antenna);
-	antenna22Robot->addChild(antenna);
-	eyeballL2Robot->addChild(eyeball);
-	eyeballR2Robot->addChild(eyeball);
-	arm12Robot->addChild(limb);
-	arm22Robot->addChild(limb);
-	arm32Robot->addChild(limb);
-	arm42Robot->addChild(limb);
-	arm52Robot->addChild(limb);
-	arm62Robot->addChild(limb);
-	sphere2Robot->addChild(sphere);
-
-	// robot squad
-	for (int i = -5; i < 5; i++) {
-		for (int j = 0; j < 10; j++) {
-			Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(5 * i, 0, -5 * j)));
- 			squad->addChild(newRobot);
-			newRobot->addChild(robot);
-			// cullNum++;
-		}
-	}
-	*/
 	return true;
 }
 
@@ -299,7 +282,16 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback()
 {
 	// glm::mat4 translate;
+	spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.01)));
 
+	if (turnL == true) {
+		std::cout << "L" << std::endl;
+	}
+
+	if (turnR == true) {
+		std::cout << "R" << std::endl;
+	}
+	/*
 	if (!pause) {
 		timer++;
 	}
@@ -307,8 +299,8 @@ void Window::idleCallback()
 		timer = 0;
 		curveCountUpdate = (curveCountUpdate + 1) % 8;
 	}												  
-
-	glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 450.0f);
+	*/
+	// glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 450.0f);
 
 	/*
 	newTime = glfwGetTime();
@@ -324,22 +316,23 @@ void Window::idleCallback()
 	} else {
 	*/
 
-	glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
-	sphere2World->update(translate);
-	
+	// glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
+	// sphere2World->update(translate);
+	/*
 	if (camView) {
-		center = tmp;
-		eye = lastPt;
-		view = glm::lookAt(eye, center, up);
+		// center = tmp;
+		// eye = lastPt;
+		// view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
 	else {
-		eye = glm::vec3(0, 2, 10);
-		center = glm::vec3(0, 0, 0);
-		view = glm::lookAt(eye, center, up);
+		// eye = glm::vec3(0, 2, 10);
+		// center = glm::vec3(0, 0, 0);
+		// view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
-	lastPt = tmp;
+	*/
+	// lastPt = tmp;
 	/*
 	timer++;
 	if (timer % 60 == 0) {
@@ -402,8 +395,6 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {	
-	// pass in the active sphere to BezierCurve to highlight
-	// track->curves[curveCount]->setActive(controlPtCount);
 	/*
 	if (culling) {
 		int cullNumber = 0;
@@ -547,14 +538,9 @@ void Window::displayCallback(GLFWwindow* window)
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 	// draw the skybox
-	/*
-	glUseProgram(trackProgram);
-	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	track->draw(trackProgram, identity);
-	*/
+
 	glUseProgram(program);
-	sphere2World->draw(program, identity);
+	spaceship->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -571,7 +557,8 @@ void Window::displayCallback(GLFWwindow* window)
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	
+	int stateL = glfwGetKey(window, GLFW_KEY_LEFT);
+	int stateR = glfwGetKey(window, GLFW_KEY_RIGHT);
 	// Check for a key press.
 	if (action == GLFW_PRESS)
 	{	
@@ -579,70 +566,25 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_ESCAPE:
 			// Close the window. This causes the program to also terminate.
-			glfwSetWindowShouldClose(window, GL_TRUE);				
+			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 
-		// move the control point in x direction
-		case GLFW_KEY_X:
-			// shift key change direction
-			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-				track->curves[curveCount]->controlPts[controlPtCount].x--;
-				
-				// update the connected point if it's a tangent point
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].x--;
-				}
-			}
-			else { 
-				track->curves[curveCount]->controlPts[controlPtCount].x++; 
-				
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].x++;
-				}
+		case GLFW_KEY_LEFT:
+			if (stateL == GLFW_RELEASE) {
+				turnL = false;
+			} else {
+				turnL = true;
 			}
 			break;
 
-		// move the control point in y direction
-		case GLFW_KEY_Y:
-			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-				track->curves[curveCount]->controlPts[controlPtCount].y--;
-			
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].y--;
-				}
-			}
-			else {
-				track->curves[curveCount]->controlPts[controlPtCount].y++;
-				
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].y++;
-				}
+		case GLFW_KEY_RIGHT:
+			if (stateR == GLFW_RELEASE) {
+				turnR = false;
+			} else {
+				turnR = true;
 			}
 			break;
 
-		// move the control point in z direction
-		case GLFW_KEY_Z:
-			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-				track->curves[curveCount]->controlPts[controlPtCount].z--;
-
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].z--;
-				}
-			}
-			else {
-				track->curves[curveCount]->controlPts[controlPtCount].z++;
-
-				if (controlPtCount == 0) {
-					track->curves[prevCount]->controlPts[3].z++;
-				}
-			}	
-			break;
-
-		// pause the sphere's movement
-		case GLFW_KEY_P:
-			pause = !pause;
-			break;
-		
 		case GLFW_KEY_C:
 			camView = !camView;
 			break;
@@ -650,10 +592,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		default:
 			break;
 		}
-		track->curves[curveCount]->update();
-		track->curves[nextCount]->update();
-		track->curves[prevCount]->update();
-		track->update();
 	}
 }
 
@@ -722,16 +660,6 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 	if (nextCount > 7) {
 		nextCount = 0;
 	}
-
-	// update the current curve in track.cpp, but not the 2nd control point since it offsets the change?
-	track->setCurrPt(controlPtCount);
-	track->setCurrCurve(curveCount);
-
-
-	// pass in the active sphere to BezierCurve to highlight
-	track->curves[curveCount]->setActive(controlPtCount);
-	track->curves[nextCount]->setActive(4);
-	track->curves[prevCount]->setActive(4);
 }
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
