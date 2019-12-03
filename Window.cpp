@@ -301,12 +301,12 @@ void Window::idleCallback()
 	if (!pause) {
 		timer++;
 	}
-	if (timer > 750) {
+	if (timer > 450) {
 		timer = 0;
 		curveCountUpdate = (curveCountUpdate + 1) % 8;
 	}												  
 
-	glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 750.0f);
+	glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 450.0f);
 
 	/*
 	newTime = glfwGetTime();
@@ -401,7 +401,7 @@ void Window::idleCallback()
 void Window::displayCallback(GLFWwindow* window)
 {	
 	// pass in the active sphere to BezierCurve to highlight
-	track->curves[curveCount]->setActive(controlPtCount);
+	// track->curves[curveCount]->setActive(controlPtCount);
 	/*
 	if (culling) {
 		int cullNumber = 0;
@@ -545,12 +545,12 @@ void Window::displayCallback(GLFWwindow* window)
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 	// draw the skybox
-
+	/*
 	glUseProgram(trackProgram);
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	track->draw(trackProgram, identity);
-	
+	*/
 	glUseProgram(program);
 	sphere2World->draw(program, identity);
 
