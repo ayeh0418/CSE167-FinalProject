@@ -206,10 +206,10 @@ bool Window::initializeObjects()
 	head22ship = new Transform(glm::translate(identity, glm::vec3(0, -1, 0)) * head2Rot);
 	wind12ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind1Scaler);
 	wind22ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind2Scaler);
-	antenna12ship = new Transform(glm::translate(identity, glm::vec3(-4.75, 1, 0)) * antennaScaler);
-	antenna22ship = new Transform(glm::translate(identity, glm::vec3(4.75, 1, 0)) * antennaScaler);
-	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 1, -4.75)) * antennaScaler);
-	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 4.75)) * antennaScaler);
+	antenna12ship = new Transform(glm::translate(identity, glm::vec3(-4.9, 0.9, 0)) * antennaScaler);
+	antenna22ship = new Transform(glm::translate(identity, glm::vec3(4.9, 0.9, 0)) * antennaScaler);
+	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 0.9, -4.9)) * antennaScaler);
+	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 0.9, 4.9)) * antennaScaler);
 	
 	head2ship->addChild(head);
 	head22ship->addChild(head);
