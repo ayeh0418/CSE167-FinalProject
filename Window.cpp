@@ -152,8 +152,10 @@ bool Window::initializeObjects()
 	glm::mat4 arm5Rot = glm::rotate(identity, 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
 	glm::mat4 arm6Rot = glm::rotate(identity, -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 
+	set
+
 	robot = new Transform(identity);
-	squad = new Transform(identity);
+	squad = new Transform(identity);ss
 	// arms2Robot = new Transform(identity);
 	head2Robot = new Transform(glm::translate(identity, glm::vec3(0, 0.5, 0)));
 	antenna12Robot = new Transform(glm::translate(identity, glm::vec3(0, 1.35, 0)) * antennaScaler);
