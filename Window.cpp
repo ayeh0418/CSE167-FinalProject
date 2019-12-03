@@ -328,15 +328,15 @@ void Window::idleCallback()
 	sphere2World->update(translate);
 	
 	if (camView) {
-		center = tmp;
-		eye = lastPt;
-		view = glm::lookAt(eye, center, up);
+		// center = tmp;
+		// eye = lastPt;
+		// view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
 	else {
-		eye = glm::vec3(0, 2, 10);
-		center = glm::vec3(0, 0, 0);
-		view = glm::lookAt(eye, center, up);
+		// eye = glm::vec3(0, 2, 10);
+		// center = glm::vec3(0, 0, 0);
+		// view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
 	lastPt = tmp;
@@ -642,11 +642,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_P:
 			pause = !pause;
 			break;
-		
+		/*
 		case GLFW_KEY_C:
 			camView = !camView;
 			break;
-
+		*/
 		default:
 			break;
 		}
