@@ -130,6 +130,15 @@ public:
 	static double leftover;
 	static bool camView;
 
+	/*
+     * Planet Numbers:
+	 *  0 : Galaxy
+	 *  1 : Planet1
+	 */
+	static int planetNumber;
+
+	static std::vector<std::vector<std::string>> skyboxVec;
+
 	static bool initializeProgram();
 	static bool initializeObjects();
 	static void cleanUp();

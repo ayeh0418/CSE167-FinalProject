@@ -23,7 +23,7 @@ private:
 	unsigned int cubemapTexture;
 
 public:
-	Skybox(float size);
+	Skybox(float size, std::vector<std::string> skyboxVec);
 	~Skybox();
 
 	void draw();

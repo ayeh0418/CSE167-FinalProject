@@ -2,12 +2,14 @@
 #include "stb-master/stb_image.h"
 #include "Skybox.h"
 
-Skybox::Skybox(float size)
+Skybox::Skybox(float size, std::vector<std::string> skyboxVec)
 {
 	skyboxShader = LoadShaders("shaders/skybox_shader.vert", "shaders/skybox_shader.frag");
+	std::vector<std::string> skybox_faces = skyboxVec;
+	
 	std::vector<std::string> skybox_faces
 	{
-		
+
 		"Left_Tex.jpg",
 		"Right_Tex.jpg",
 		"Up_Tex.jpg",

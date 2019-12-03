@@ -113,6 +113,10 @@ double Window::newTime = 0.0;
 double Window::leftover = 0.0;
 bool Window::camView = false;
 
+int Window::planetNumber;
+
+std::vector<std::vector<std::string>> Window::skyboxVec;
+
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	program = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
@@ -135,12 +139,50 @@ bool Window::initializeProgram() {
 	viewPosLoc = glGetUniformLocation(program, "viewPos");
 	modelLoc = glGetUniformLocation(program, "model");
 	// colorLoc = glGetUniformLocation(program, "color");
+
+	// On initialize, we begin in galaxy.
+	planetNumber = 0;
+
+	std::vector<std::string> galaxy_skybox_faces
+	{
+
+		"Left_Tex.jpg",
+		"Right_Tex.jpg",
+		"Up_Tex.jpg",
+		"Down_Tex.jpg",
+		"Front_Tex.jpg",
+		"Back_Tex.jpg"
+	};
+
+	std::vector<std::string> fire_skybox_faces
+	{
+
+		"Left_Tex.jpg",
+		"Right_Tex.jpg",
+		"Up_Tex.jpg",
+		"Down_Tex.jpg",
+		"Front_Tex.jpg",
+		"Back_Tex.jpg"
+	};
+
+	std::vector<std::string> blue_skybox_faces
+	{
+
+		"Left_Tex.jpg",
+		"Right_Tex.jpg",
+		"Up_Tex.jpg",
+		"Down_Tex.jpg",
+		"Front_Tex.jpg",
+		"Back_Tex.jpg"
+	};
+
+	skyboxVec.push_back(galaxy_skybox_faces);
 	return true;
 }
 
 bool Window::initializeObjects()
 {
-	env = new Skybox(1.0f);
+	env = new Skybox(1.0f, skyboxVec[planetNumber]);
 
 	head = new Geometry("head_s.obj", env->getTexture());
 	antenna = new Geometry("antenna_s.obj", env->getTexture());
@@ -537,14 +579,38 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
 	
 	glm::mat4 identity = glm::mat4(1.0f);
-	// draw the skybox
 
 	glUseProgram(program);
 	spaceship->draw(program, identity);
 
-	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	env->draw();
+	switch (planetNumber)
+	{
+	case 0:
+		// draw the galaxy skybox
+		glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		env->draw();
+		break;
+
+	case 1:
+		glUseProgram(program);
+		spaceship->draw(program, identity);
+
+		env = new Skybox(1.0f, skyboxVec[planetNumber]);
+
+		break;
+
+	default:
+		break;
+	}
+
+	if (planetNumber == 0)
+	{
+		
+	}
+
+
+
 
 	// Render the objects.
 	// squad->draw(program, identity);
@@ -587,6 +653,14 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 		case GLFW_KEY_C:
 			camView = !camView;
+			break;
+
+		case GLFW_KEY_1:
+			planetNumber = 1;
+			break;
+		
+		case GLFW_KEY_0:
+			planetNumber = 0;
 			break;
 
 		default:
