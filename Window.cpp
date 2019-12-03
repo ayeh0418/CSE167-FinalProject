@@ -282,7 +282,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback()
 {
 	// glm::mat4 translate;
-	spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.01)));
+	// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.01)));
 
 	if (turnL == true) {
 		std::cout << "L" << std::endl;
