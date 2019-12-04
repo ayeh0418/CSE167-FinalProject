@@ -77,6 +77,8 @@ Skybox::Skybox(float size, std::vector<std::string> skyboxVec)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	// Unbind from the VAO.
 	glBindVertexArray(0);
+
+	M = glm::mat4(1.0f);
 }
 
 Skybox::~Skybox()
@@ -90,6 +92,8 @@ void Skybox::draw()
 {
 	// glDepthMask(GL_FALSE);
 	glUseProgram(skyboxShader);
+
+	glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "model"), 1, GL_FALSE, glm::value_ptr(M));
 	// ... set view and projection matrix
 	glBindVertexArray(vao);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -104,8 +108,9 @@ void Skybox::draw()
 	glBindVertexArray(0);
 }
 
-void Skybox::update()
+void Skybox::update(glm::mat4 C)
 {
+	M = C * M;
 }
 
 

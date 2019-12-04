@@ -5,9 +5,10 @@ int Window::height;
 
 const char* Window::windowTitle = "Project 3";
 
-
+/*
 Geometry * Window::eyeball;
-Geometry * Window::sphere;
+Geometry* Window::sphere;
+*/
 
 Geometry* Window::head;
 Geometry* Window::antenna;
@@ -31,7 +32,7 @@ bool Window::turnR = false;
 bool Window::goForward = false;
 bool Window::goBackward = false;
 float Window::angle = 0;
-
+/*
 Track * Window::track;
 Transform * Window::robot;
 Transform * Window::squad;
@@ -48,9 +49,8 @@ Transform* Window::arm52Robot;
 Transform* Window::arm62Robot;
 Transform* Window::sphere2Robot;
 Transform* Window::sphere2World;
-
+*/
 glm::mat4 Window::projection; // Projection matrix.
-
 glm::vec3 Window::eyeVec = glm::vec3(0, 3, 10);
 glm::vec3 Window::eye = eyeVec;  // Camera position. (0, 2, 10)
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
@@ -59,7 +59,6 @@ glm::vec3 Window::lastPos(0, 0, 0);
 
 // View matrix, defined by eye, center and up.
 glm::mat4 Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-//glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
 GLuint Window::program; // The shader program id.
 GLuint Window::skyboxProgram; // The shader program id.
@@ -206,7 +205,6 @@ bool Window::initializeObjects()
 	env2 = new Skybox(1.0f, skyboxVec[2]);
 	env3 = new Skybox(1.0f, skyboxVec[3]);
 
-
 	head = new Geometry("head_s.obj", env->getTexture());
 	antenna = new Geometry("antenna_s.obj", env->getTexture());
 	body = new Geometry("body_s.obj", env->getTexture());
@@ -220,9 +218,9 @@ bool Window::initializeObjects()
 	glm::mat4 shipScaler = glm::scale(glm::vec3(0.3, 0.3, 0.3));
 	
 	glm::mat4 head2Rot = glm::rotate(identity, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	// glm::mat4 shipRot = glm::rotate(identity, glm::radians(45.0f), glm::vec3(0, 1, 0));
 	glm::mat4 shipRot2 = glm::rotate(identity, glm::radians(90.0f), glm::vec3(-1, 0, 0));
 
+	ship2world = new Transform(identity);
 	spaceship = new Transform(identity * shipRot2 * shipScaler);
 	body2ship = new Transform(identity);
 	head2ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 0)));
@@ -243,28 +241,19 @@ bool Window::initializeObjects()
 	antenna22ship->addChild(antenna);
 	antenna32ship->addChild(antenna);
 	antenna42ship->addChild(antenna);
-	
-	
-	spaceship->addChild(body2ship);
-
-	body2ship->addChild(head2ship);
-	body2ship->addChild(head22ship);
 
 	body2ship->addChild(wind12ship);
 	body2ship->addChild(wind22ship);
-
 	body2ship->addChild(antenna12ship);
 	body2ship->addChild(antenna22ship);
 	body2ship->addChild(antenna32ship);
 	body2ship->addChild(antenna42ship);
-	/*
-	spaceship->addChild(wind12ship);
-	spaceship->addChild(wind22ship);
-	spaceship->addChild(antenna12ship);
-	spaceship->addChild(antenna22ship);
-	spaceship->addChild(antenna32ship);
-	spaceship->addChild(antenna42ship);
-	*/
+
+	spaceship->addChild(body2ship);
+	spaceship->addChild(head2ship);
+	spaceship->addChild(head22ship);
+
+	ship2world->addChild(spaceship);
 	return true;
 }
 
@@ -273,9 +262,9 @@ void Window::cleanUp()
 	// Deallcoate the objects.
 	// delete squad;
 	delete env;
-	delete sphere;
+	// delete sphere;
 	// delete sphere2World;
-	delete track;
+	// delete track;
 	// Delete the shader program.
 	glDeleteProgram(program);
 	glDeleteProgram(skyboxProgram);
@@ -357,60 +346,69 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
+	glm::vec3 position = glm::column(ship2world->getModel(), 3);
 	// rotate tail
 	body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
 
 	if (goForward == true)
 	{
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.05f)));
-		
-		eye.z -= 0.05f;
+		// ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, following.z - position.z)));
+		// ship2world->update(glm::translate(glm::mat4(1.0f), following - position));
+		// eye.z = eye.z + (following.z - position.z);
+		// center = center + (following - position);
+		/// following.z = center.z - 0.05f;
+		// following.x = center.x + 0.05f;
+		ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.05f)));
 		center.z -= 0.05f;
 	}
 
 	if (goBackward == true)
 	{
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.05f)));
-
-		eye.z += 0.05f;
+		// ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, position.z - following.z)));
+		// eye.z = eye.z + (position.z - following.z);
+		// center.z = center.z + (position.z - following.z);
+		// following.z = center.z - 0.05f;
+		ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.05f)));
 		center.z += 0.05f;
 	}
 
 
 	if (turnL == true) {
-		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
+		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 0, 1)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.03, 0, 0)));
-		//spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 1, 0)));
-		eye.x -= 0.03;
-		center.x -= 0.03;
-		// angle += 0.05f;
+		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.03, 0, 0)));
+		// spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		env->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		env1->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		env2->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		env3->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		// eye.x -= 0.03;
+		// center.x -= 0.03;
+	}
+
+	if (turnR == true) {
+		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
+		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
+		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.03, 0, 0)));
+		// spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		env->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		env1->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		env2->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		env3->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		// eye.x += 0.03;
+		// center.x += 0.03;
 	}
 	/*
-	else {
-		if (angle > 0) {
-			body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.05f), glm::vec3(0, -1, 0)));
-			angle -= 0.05f;
-		}
-	}
-	*/
-	if (turnR == true) {
-		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
-		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.03, 0, 0)));
-		eye.x += 0.03;
-		center.x += 0.03;
-	}
-	
-	//center.z -= 0.05;
-	//eye.z -= 0.05;
-	view = glm::lookAt(eye, center, up);
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	head->setSkyboxTexture(env->getTexture());
+	antenna->setSkyboxTexture(env->getTexture());
+	wing->setSkyboxTexture(env->getTexture());
+	body->setSkyboxTexture(env->getTexture());
 
-	head2ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 0)));
-	head22ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, -1, 0)));
-	
-	glm::vec3 position = glm::column(spaceship->getModel(), 3);
+	glUseProgram(program);
+	ship2world->draw(program, glm::mat4(1.0f));
+
+	env->draw();
+	*/
 
 	if (camView) {
 		eye.y = position.y;
@@ -427,7 +425,6 @@ void Window::idleCallback()
 		view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
-
 	/*
 	timer++;
 	if (timer % 60 == 0) {
@@ -634,7 +631,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glm::mat4 identity = glm::mat4(1.0f);
 
 	glUseProgram(program);
-	spaceship->draw(program, identity);
+	ship2world->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -650,7 +647,7 @@ void Window::displayCallback(GLFWwindow* window)
 		body->setSkyboxTexture(env->getTexture());
 
 		glUseProgram(program);
-		spaceship->draw(program, identity);
+		ship2world->draw(program, identity);
 
 		env->draw();
 		break;
@@ -662,7 +659,7 @@ void Window::displayCallback(GLFWwindow* window)
 		body->setSkyboxTexture(env1->getTexture());
 
 		glUseProgram(program);
-		spaceship->draw(program, identity);
+		ship2world->draw(program, identity);
 
 		env1->draw();
 
@@ -675,7 +672,7 @@ void Window::displayCallback(GLFWwindow* window)
 		body->setSkyboxTexture(env2->getTexture());
 
 		glUseProgram(program);
-		spaceship->draw(program, identity);
+		ship2world->draw(program, identity);
 
 		env2->draw();
 
@@ -688,7 +685,7 @@ void Window::displayCallback(GLFWwindow* window)
 		body->setSkyboxTexture(env3->getTexture());
 
 		glUseProgram(program);
-		spaceship->draw(program, identity);
+		ship2world->draw(program, identity);
 
 		env3->draw();
 
@@ -730,8 +727,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_0:
 			if (planetNumber != 0) {
 				planetNumber = 0;
-				position = glm::column(spaceship->getModel(), 3);
-				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+				position = glm::column(ship2world->getModel(), 3);
+				ship2world->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
 				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
@@ -743,8 +740,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_1:
 			if (planetNumber != 1) {
 				planetNumber = 1;
-				position = glm::column(spaceship->getModel(), 3);
-				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+				position = glm::column(ship2world->getModel(), 3);
+				ship2world->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
 				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
@@ -756,8 +753,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_2:
 			if (planetNumber != 2) {
 				planetNumber = 2;
-				position = glm::column(spaceship->getModel(), 3);
-				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+				position = glm::column(ship2world->getModel(), 3);
+				ship2world->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
 				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
@@ -769,8 +766,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_3:
 			if (planetNumber != 3) {
 				planetNumber = 3;
-				position = glm::column(spaceship->getModel(), 3);
-				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+				position = glm::column(ship2world->getModel(), 3);
+				ship2world->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
 				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);

@@ -34,11 +34,11 @@ public:
 	static int width;
 	static int height;
 	static const char* windowTitle;
-
+	/*
 	static Geometry* eyeball;
 	static Geometry * sphere;
 	static Track * track;
-
+	*/
 	static Geometry* head;
 	static Geometry* body;
 	static Geometry* antenna;
@@ -59,7 +59,7 @@ public:
 	static bool turnL, turnR, goForward, goBackward;
 	static float angle;
 
-
+	/*
 	static Transform * robot;
 	static Transform * squad;
 	static Transform * head2Robot;
@@ -78,7 +78,7 @@ public:
 	static Transform * env2World;
 	static Transform * world;
 	// static Transform* arms2Robot;
-
+	*/
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;

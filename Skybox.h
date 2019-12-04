@@ -9,6 +9,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -17,6 +18,7 @@
 class Skybox
 {
 private:
+	glm::mat4 M;
 	std::vector<unsigned int> indices;
 	GLuint vao, vbos[2];
 	GLuint skyboxShader;
@@ -27,7 +29,7 @@ public:
 	~Skybox();
 
 	void draw();
-	void update();
+	void update(glm::mat4 C);
 	unsigned int loadCubemap(std::vector<std::string> faces);
 	unsigned int getTexture() { return cubemapTexture; }
 };
