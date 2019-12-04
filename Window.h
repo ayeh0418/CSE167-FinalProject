@@ -57,7 +57,7 @@ public:
 	static Transform * antenna32ship;
 	static Transform * antenna42ship;
 	static bool turnL, turnR;
-
+	static float angle;
 
 
 	static Transform * robot;
