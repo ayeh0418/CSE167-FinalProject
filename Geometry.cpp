@@ -276,3 +276,8 @@ void Geometry::init(std::string filename) {
 	// Unbind from the VAO.
 	glBindVertexArray(0);
 }
+
+void Geometry::setSkyboxTexture(unsigned int newTexture)
+{
+	skyboxTexture = newTexture;
+}

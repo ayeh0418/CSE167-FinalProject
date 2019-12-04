@@ -38,6 +38,8 @@ public:
 	void draw(GLuint programShader, glm::mat4 C);
 	void update(glm::mat4 C);
 	void init(std::string filename);
+
+	void setSkyboxTexture(unsigned int newTexture);
 };
 
 #endif

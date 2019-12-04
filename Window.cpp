@@ -11,7 +11,7 @@ Geometry * Window::sphere;
 
 Geometry* Window::head;
 Geometry* Window::antenna;
-Geometry* Window::wind;
+Geometry* Window::wing;
 Geometry* Window::body;
 Transform* Window::spaceship;
 Transform* Window::ship2world;
@@ -99,7 +99,10 @@ bool Window::showRobot = true;
 int Window::cullNum = 100;
 bool Window::culling = false;
 
-Skybox * Window::env;
+Skybox* Window::env;
+Skybox* Window::env1;
+Skybox* Window::env2;
+Skybox* Window::env3;
 
 int Window::controlPtCount = 0;
 int Window::curveCount = 0;
@@ -140,54 +143,70 @@ bool Window::initializeProgram() {
 	modelLoc = glGetUniformLocation(program, "model");
 	// colorLoc = glGetUniformLocation(program, "color");
 
-	// On initialize, we begin in galaxy.
-	planetNumber = 0;
-
-	std::vector<std::string> galaxy_skybox_faces
-	{
-
-		"Left_Tex.jpg",
-		"Right_Tex.jpg",
-		"Up_Tex.jpg",
-		"Down_Tex.jpg",
-		"Front_Tex.jpg",
-		"Back_Tex.jpg"
-	};
-
-	std::vector<std::string> fire_skybox_faces
-	{
-
-		"Left_Tex.jpg",
-		"Right_Tex.jpg",
-		"Up_Tex.jpg",
-		"Down_Tex.jpg",
-		"Front_Tex.jpg",
-		"Back_Tex.jpg"
-	};
-
-	std::vector<std::string> blue_skybox_faces
-	{
-
-		"Left_Tex.jpg",
-		"Right_Tex.jpg",
-		"Up_Tex.jpg",
-		"Down_Tex.jpg",
-		"Front_Tex.jpg",
-		"Back_Tex.jpg"
-	};
-
-	skyboxVec.push_back(galaxy_skybox_faces);
+	
 	return true;
 }
 
 bool Window::initializeObjects()
 {
-	env = new Skybox(1.0f, skyboxVec[planetNumber]);
+	// On initialize, we begin in galaxy.
+	planetNumber = 0;
+
+	std::vector<std::string> galaxy_skybox_faces
+	{
+		"Left_Tex.jpg",
+		"Right_Tex.jpg",
+		"Up_Tex.jpg",
+		"Down_Tex.jpg",
+		"Front_Tex.jpg",
+		"Back_Tex.jpg"
+	};
+
+	std::vector<std::string> red_skybox_faces
+	{
+		"redSkyLeft.png",
+		"redSkyRight.png",
+		"redSkyUp.png",
+		"redSkyDown.png",
+		"redSkyFront.png",
+		"redSkyBack.png"
+	};
+
+	std::vector<std::string> dark_skybox_faces
+	{
+		"darkSkyLeft.png",
+		"darkSkyRight.png",
+		"darkSkyUp.png",
+		"darkSkyDown.png",
+		"darkSkyFront.png",
+		"darkSkyBack.png"
+	};
+
+	std::vector<std::string> lake_skybox_faces
+	{
+		"right.jpg",
+		"left.jpg",
+		"top.jpg",
+		"bottom.jpg",
+		"front.jpg",
+		"back.jpg"
+	};
+
+	skyboxVec.push_back(galaxy_skybox_faces);
+	skyboxVec.push_back(red_skybox_faces);
+	skyboxVec.push_back(dark_skybox_faces);
+	skyboxVec.push_back(lake_skybox_faces);
+
+	env = new Skybox(1.0f, skyboxVec[0]);
+	env1 = new Skybox(1.0f, skyboxVec[1]);
+	env2 = new Skybox(1.0f, skyboxVec[2]);
+	env3 = new Skybox(1.0f, skyboxVec[3]);
+
 
 	head = new Geometry("head_s.obj", env->getTexture());
 	antenna = new Geometry("antenna_s.obj", env->getTexture());
 	body = new Geometry("body_s.obj", env->getTexture());
-	wind = new Geometry("limb_s.obj", env->getTexture());
+	wing = new Geometry("limb_s.obj", env->getTexture());
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
@@ -214,8 +233,8 @@ bool Window::initializeObjects()
 	head2ship->addChild(head);
 	head22ship->addChild(head);
 	body2ship->addChild(body);
-	wind12ship->addChild(wind);
-	wind22ship->addChild(wind);
+	wind12ship->addChild(wing);
+	wind22ship->addChild(wing);
 	antenna12ship->addChild(antenna);
 	antenna22ship->addChild(antenna);
 	antenna32ship->addChild(antenna);
@@ -583,20 +602,62 @@ void Window::displayCallback(GLFWwindow* window)
 	glUseProgram(program);
 	spaceship->draw(program, identity);
 
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
 	switch (planetNumber)
 	{
 	case 0:
 		// draw the galaxy skybox
-		glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		head->setSkyboxTexture(env->getTexture());
+		antenna->setSkyboxTexture(env->getTexture());
+		wing->setSkyboxTexture(env->getTexture());
+		body->setSkyboxTexture(env->getTexture());
+
+		glUseProgram(program);
+		spaceship->draw(program, identity);
+
 		env->draw();
 		break;
 
 	case 1:
+		head->setSkyboxTexture(env1->getTexture());
+		antenna->setSkyboxTexture(env1->getTexture());
+		wing->setSkyboxTexture(env1->getTexture());
+		body->setSkyboxTexture(env1->getTexture());
+
 		glUseProgram(program);
 		spaceship->draw(program, identity);
 
-		env = new Skybox(1.0f, skyboxVec[planetNumber]);
+		env1->draw();
+
+		break;
+
+	case 2:
+		head->setSkyboxTexture(env2->getTexture());
+		antenna->setSkyboxTexture(env2->getTexture());
+		wing->setSkyboxTexture(env2->getTexture());
+		body->setSkyboxTexture(env2->getTexture());
+
+		glUseProgram(program);
+		spaceship->draw(program, identity);
+
+		env2->draw();
+
+		break;
+
+	case 3:
+
+
+		head->setSkyboxTexture(env3->getTexture());
+		antenna->setSkyboxTexture(env3->getTexture());
+		wing->setSkyboxTexture(env3->getTexture());
+		body->setSkyboxTexture(env3->getTexture());
+
+		glUseProgram(program);
+		spaceship->draw(program, identity);
+
+		env3->draw();
 
 		break;
 
@@ -654,13 +715,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_C:
 			camView = !camView;
 			break;
+		
+		case GLFW_KEY_0:
+			planetNumber = 0;
+			break;
 
 		case GLFW_KEY_1:
 			planetNumber = 1;
 			break;
-		
-		case GLFW_KEY_0:
-			planetNumber = 0;
+
+		case GLFW_KEY_2:
+			planetNumber = 2;
+			break;
+
+		case GLFW_KEY_3:
+			planetNumber = 3;
 			break;
 
 		default:

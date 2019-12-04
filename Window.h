@@ -42,7 +42,7 @@ public:
 	static Geometry* head;
 	static Geometry* body;
 	static Geometry* antenna;
-	static Geometry* wind;
+	static Geometry* wing;
 	static Transform * spaceship;
 	static Transform * ship2world;
 	static Transform * body2ship;
@@ -117,7 +117,10 @@ public:
 	static int cullNum;
 	static bool culling;
 
-	static Skybox * env;
+	static Skybox* env;
+	static Skybox* env1;
+	static Skybox* env2;
+	static Skybox* env3;
 	static int curveCount;
 	static int prevCount;
 	static int nextCount;

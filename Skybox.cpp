@@ -6,26 +6,7 @@ Skybox::Skybox(float size, std::vector<std::string> skyboxVec)
 {
 	skyboxShader = LoadShaders("shaders/skybox_shader.vert", "shaders/skybox_shader.frag");
 	std::vector<std::string> skybox_faces = skyboxVec;
-	
-	std::vector<std::string> skybox_faces
-	{
 
-		"Left_Tex.jpg",
-		"Right_Tex.jpg",
-		"Up_Tex.jpg",
-		"Down_Tex.jpg",
-		"Front_Tex.jpg",
-		"Back_Tex.jpg"
-
-		/*
-		"right.jpg",
-		"left.jpg",
-		"top.jpg",
-		"bottom.jpg",
-		"front.jpg",
-		"back.jpg"
-		*/
-	};
 	cubemapTexture = loadCubemap(skybox_faces);
 	// The 8 vertices of a cube.
 	std::vector<glm::vec3> vertices
