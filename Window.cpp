@@ -620,6 +620,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
+
 	switch (planetNumber)
 	{
 	case 0:
@@ -662,8 +663,6 @@ void Window::displayCallback(GLFWwindow* window)
 		break;
 
 	case 3:
-
-
 		head->setSkyboxTexture(env3->getTexture());
 		antenna->setSkyboxTexture(env3->getTexture());
 		wing->setSkyboxTexture(env3->getTexture());
@@ -699,6 +698,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	glm::vec3 position;
 	int stateL = glfwGetKey(window, GLFW_KEY_LEFT);
 	int stateR = glfwGetKey(window, GLFW_KEY_RIGHT);
 	// Check for a key press.
@@ -717,18 +717,46 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		
 		case GLFW_KEY_0:
 			planetNumber = 0;
+			position = glm::column(spaceship->getModel(), 3);
+			spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+
+			eye = glm::vec3(0, 2, 10);
+			center = glm::vec3(0, 0, 0);
+			view = glm::lookAt(eye, center, up);
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 			break;
 
 		case GLFW_KEY_1:
 			planetNumber = 1;
+			position = glm::column(spaceship->getModel(), 3);
+			spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+
+			eye = glm::vec3(0, 2, 10);
+			center = glm::vec3(0, 0, 0);
+			view = glm::lookAt(eye, center, up);
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 			break;
 
 		case GLFW_KEY_2:
 			planetNumber = 2;
+			position = glm::column(spaceship->getModel(), 3);
+			spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+
+			eye = glm::vec3(0, 2, 10);
+			center = glm::vec3(0, 0, 0);
+			view = glm::lookAt(eye, center, up);
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 			break;
 
 		case GLFW_KEY_3:
 			planetNumber = 3;
+			position = glm::column(spaceship->getModel(), 3);
+			spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
+
+			eye = glm::vec3(0, 2, 10);
+			center = glm::vec3(0, 0, 0);
+			view = glm::lookAt(eye, center, up);
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 			break;
 
 		default:
