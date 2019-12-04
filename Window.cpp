@@ -28,6 +28,7 @@ Transform* Window::antenna32ship;
 Transform* Window::antenna42ship;
 bool Window::turnL = false;
 bool Window::turnR = false;
+float Window::angle = 0;
 
 Track * Window::track;
 Transform * Window::robot;
@@ -48,7 +49,7 @@ Transform* Window::sphere2World;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-glm::vec3 Window::eye(0, 3, 10); // Camera position. (0, 2, 10)
+glm::vec3 Window::eye(0, 2, 10); // Camera position. (0, 2, 10)
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
@@ -152,7 +153,7 @@ bool Window::initializeObjects()
 	glm::mat4 wind1Scaler = glm::scale(glm::vec3(35, 2, 0.5));
 	glm::mat4 wind2Scaler = glm::scale(glm::vec3(0.5, 2, 35));
 	glm::mat4 antennaScaler = glm::scale(glm::vec3(1, 0.8, 1));
-	glm::mat4 shipScaler = glm::scale(glm::vec3(0.8, 0.8, 0.8));
+	glm::mat4 shipScaler = glm::scale(glm::vec3(0.3, 0.3, 0.3));
 	
 	glm::mat4 head2Rot = glm::rotate(identity, glm::radians(180.0f), glm::vec3(0, 0, 1));
 	glm::mat4 shipRot = glm::rotate(identity, glm::radians(45.0f), glm::vec3(0, 1, 0));
@@ -182,13 +183,22 @@ bool Window::initializeObjects()
 	spaceship->addChild(head2ship);
 	spaceship->addChild(head22ship);
 	spaceship->addChild(body2ship);
+
+	body2ship->addChild(wind12ship);
+	body2ship->addChild(wind22ship);
+
+	body2ship->addChild(antenna12ship);
+	body2ship->addChild(antenna22ship);
+	body2ship->addChild(antenna32ship);
+	body2ship->addChild(antenna42ship);
+	/*
 	spaceship->addChild(wind12ship);
 	spaceship->addChild(wind22ship);
 	spaceship->addChild(antenna12ship);
 	spaceship->addChild(antenna22ship);
 	spaceship->addChild(antenna32ship);
 	spaceship->addChild(antenna42ship);
-
+	*/
 	return true;
 }
 
@@ -282,47 +292,52 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback()
 {
 	// glm::mat4 translate;
-	//spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.01)));
+	spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.05f)));
+	body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
 
 	if (turnL == true) {
-		std::cout << "L" << std::endl;
+		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 0, 0)));
+		eye.x -= 0.1;
+		center.x -= 0.1;
+		// angle += 0.05f;
 	}
-
+	/*
+	else {
+		if (angle > 0) {
+			body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.05f), glm::vec3(0, -1, 0)));
+			angle -= 0.05f;
+		}
+	}
+	*/
 	if (turnR == true) {
-		std::cout << "R" << std::endl;
+		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0, 0)));
+		eye.x += 0.1;
+		center.x += 0.1;
+		// angle -= 0.05f;
 	}
 	/*
-	if (!pause) {
-		timer++;
+	else {
+		if (angle < 0) {
+			body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.05f), glm::vec3(0, -1, 0)));
+			angle += 0.05f;
+		}
 	}
-	if (timer > 450) {
-		timer = 0;
-		curveCountUpdate = (curveCountUpdate + 1) % 8;
-	}												  
 	*/
-	// glm::vec3 tmp = track->curves[curveCountUpdate]->getPoint((float)timer / 450.0f);
+	center.z -= 0.05;
+	eye.z -= 0.05;
+	view = glm::lookAt(eye, center, up);
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-	/*
-	newTime = glfwGetTime();
-	double deltaTime = newTime - oldTime;
-	oldTime = newTime;
-	double traveled = 2 * deltaTime;
-	double distance = glm::length(tmp - lastPt);
-	leftover = distance - traveled;
-
-	if (leftover < 0) {
-		glm::vec3 midPt = track->curves[curveCountUpdate]->getPoint((distance + leftover) / distance);
-		translate = glm::translate(glm::mat4(1.0f), tmp - midPt);
-	} else {
-	*/
-
-	// glm::mat4 translate = glm::translate(glm::mat4(1.0f), tmp - lastPt);
-	// sphere2World->update(translate);
-	/*
+	head2ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 0)));
+	head22ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, -1, 0)));
+	
 	if (camView) {
-		// center = tmp;
-		// eye = lastPt;
-		// view = glm::lookAt(eye, center, up);
+		
+		//eye = center;
+		//center = center + 2.0f;
+		//view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
 	else {
@@ -331,8 +346,8 @@ void Window::idleCallback()
 		// view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
-	*/
-	// lastPt = tmp;
+	
+
 	/*
 	timer++;
 	if (timer % 60 == 0) {
@@ -569,22 +584,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 
-		case GLFW_KEY_LEFT:
-			if (stateL == GLFW_RELEASE) {
-				turnL = false;
-			} else {
-				turnL = true;
-			}
-			break;
-
-		case GLFW_KEY_RIGHT:
-			if (stateR == GLFW_RELEASE) {
-				turnR = false;
-			} else {
-				turnR = true;
-			}
-			break;
-
 		case GLFW_KEY_C:
 			camView = !camView;
 			break;
@@ -592,6 +591,30 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		default:
 			break;
 		}
+	}
+
+	switch (key) 
+	{
+	case GLFW_KEY_LEFT:
+		if (action == GLFW_REPEAT) {
+			turnL = true;
+		}
+		else {
+			turnL = false;
+		}
+		break;
+
+	case GLFW_KEY_RIGHT:
+		if (action == GLFW_REPEAT) {
+			turnR = true;
+		}
+		else {
+			turnR = false;
+		}
+		break;
+
+	default:
+		break;
 	}
 }
 
