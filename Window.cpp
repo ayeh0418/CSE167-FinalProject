@@ -49,7 +49,7 @@ Transform* Window::sphere2World;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-glm::vec3 Window::eye(0, 2, 10); // Camera position. (0, 2, 10)
+glm::vec3 Window::eye(0, 0, 10); // Camera position. (0, 2, 10)
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
@@ -213,23 +213,23 @@ bool Window::initializeObjects()
 	glm::mat4 scaler = glm::mat4(1.0f);
 	glm::mat4 wind1Scaler = glm::scale(glm::vec3(35, 2, 0.5));
 	glm::mat4 wind2Scaler = glm::scale(glm::vec3(0.5, 2, 35));
-	glm::mat4 antennaScaler = glm::scale(glm::vec3(1, 0.8, 1));
+	glm::mat4 antennaScaler = glm::scale(glm::vec3(1, 1.5, 1));
 	glm::mat4 shipScaler = glm::scale(glm::vec3(0.3, 0.3, 0.3));
 	
 	glm::mat4 head2Rot = glm::rotate(identity, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	glm::mat4 shipRot = glm::rotate(identity, glm::radians(45.0f), glm::vec3(0, 1, 0));
+	// glm::mat4 shipRot = glm::rotate(identity, glm::radians(45.0f), glm::vec3(0, 1, 0));
 	glm::mat4 shipRot2 = glm::rotate(identity, glm::radians(90.0f), glm::vec3(-1, 0, 0));
 
-	spaceship = new Transform(identity * shipRot2 * shipRot * shipScaler);
+	spaceship = new Transform(identity * shipRot2 * shipScaler);
 	body2ship = new Transform(identity);
 	head2ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 0)));
 	head22ship = new Transform(glm::translate(identity, glm::vec3(0, -1, 0)) * head2Rot);
 	wind12ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind1Scaler);
 	wind22ship = new Transform(glm::translate(identity, glm::vec3(0, 0, 0)) * wind2Scaler);
-	antenna12ship = new Transform(glm::translate(identity, glm::vec3(-4.9, 0.9, 0)) * antennaScaler);
-	antenna22ship = new Transform(glm::translate(identity, glm::vec3(4.9, 0.9, 0)) * antennaScaler);
-	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 0.9, -4.9)) * antennaScaler);
-	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 0.9, 4.9)) * antennaScaler);
+	antenna12ship = new Transform(glm::translate(identity, glm::vec3(-4.9, 1, 0)) * antennaScaler);
+	antenna22ship = new Transform(glm::translate(identity, glm::vec3(4.9, 1, 0)) * antennaScaler);
+	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 1, -4.9)) * antennaScaler);
+	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 4.9)) * antennaScaler);
 	
 	head2ship->addChild(head);
 	head22ship->addChild(head);
@@ -241,9 +241,11 @@ bool Window::initializeObjects()
 	antenna32ship->addChild(antenna);
 	antenna42ship->addChild(antenna);
 	
-	spaceship->addChild(head2ship);
-	spaceship->addChild(head22ship);
+	
 	spaceship->addChild(body2ship);
+
+	body2ship->addChild(head2ship);
+	body2ship->addChild(head22ship);
 
 	body2ship->addChild(wind12ship);
 	body2ship->addChild(wind22ship);
@@ -358,9 +360,11 @@ void Window::idleCallback()
 
 	if (turnL == true) {
 		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 0, 0)));
-		eye.x -= 0.1;
-		center.x -= 0.1;
+		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 0, 1)));
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.01, 0, 0)));
+		//spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 1, 0)));
+		eye.x -= 0.01;
+		center.x -= 0.01;
 		// angle += 0.05f;
 	}
 	/*
@@ -373,19 +377,11 @@ void Window::idleCallback()
 	*/
 	if (turnR == true) {
 		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 0, 0)));
-		eye.x += 0.1;
-		center.x += 0.1;
-		// angle -= 0.05f;
+		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.01, 0, 0)));
+		eye.x += 0.01;
+		center.x += 0.01;
 	}
-	/*
-	else {
-		if (angle < 0) {
-			body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.05f), glm::vec3(0, -1, 0)));
-			angle += 0.05f;
-		}
-	}
-	*/
 	center.z -= 0.05;
 	eye.z -= 0.05;
 	view = glm::lookAt(eye, center, up);
@@ -394,20 +390,21 @@ void Window::idleCallback()
 	head2ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 1, 0)));
 	head22ship = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, -1, 0)));
 	
+	glm::vec3 position = glm::column(spaceship->getModel(), 3);
+
 	if (camView) {
-		
-		//eye = center;
-		//center = center + 2.0f;
-		//view = glm::lookAt(eye, center, up);
+		eye.z = position.z + 0.5f;
+		glm::vec3 c = center;
+		c.z -= 10.0f;
+		view = glm::lookAt(eye, c, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		
 	}
 	else {
-		// eye = glm::vec3(0, 2, 10);
-		// center = glm::vec3(0, 0, 0);
-		// view = glm::lookAt(eye, center, up);
+		eye.z = position.z + 10.0f;
+		view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
-	
 
 	/*
 	timer++;
