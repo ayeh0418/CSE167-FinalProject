@@ -730,7 +730,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 2, 10);
+				eye = glm::vec3(0, 0, 10);
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -743,7 +743,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 2, 10);
+				eye = glm::vec3(0, 0, 10);
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -756,7 +756,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 2, 10);
+				eye = glm::vec3(0, 0, 10);
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -769,7 +769,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 2, 10);
+				eye = glm::vec3(0, 0, 10);
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
