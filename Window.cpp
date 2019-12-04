@@ -400,7 +400,7 @@ void Window::idleCallback()
 		eye.x += 0.01;
 		center.x += 0.01;
 	}
-	*/
+	
 	//center.z -= 0.05;
 	//eye.z -= 0.05;
 	view = glm::lookAt(eye, center, up);
