@@ -56,7 +56,7 @@ public:
 	static Transform * antenna22ship;
 	static Transform * antenna32ship;
 	static Transform * antenna42ship;
-	static bool turnL, turnR;
+	static bool turnL, turnR, goForward, goBackward;
 	static float angle;
 
 
@@ -136,7 +136,9 @@ public:
 	/*
      * Planet Numbers:
 	 *  0 : Galaxy
-	 *  1 : Planet1
+	 *  1 : Planet1 red sky
+	 *  2 : Planet2 blue sky
+	 *  3 : Planet3 Lake
 	 */
 	static int planetNumber;
 

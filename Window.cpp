@@ -28,6 +28,8 @@ Transform* Window::antenna32ship;
 Transform* Window::antenna42ship;
 bool Window::turnL = false;
 bool Window::turnR = false;
+bool Window::goForward = false;
+bool Window::goBackward = false;
 float Window::angle = 0;
 
 Track * Window::track;
@@ -352,9 +354,25 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
-	// glm::mat4 translate;
-	spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.05f)));
+	// rotate tail
 	body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
+
+	if (goForward == true)
+	{
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -0.05f)));
+		
+		eye.z -= 0.05f;
+		center.z -= 0.05f;
+	}
+
+	if (goBackward == true)
+	{
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.05f)));
+
+		eye.z += 0.05f;
+		center.z += 0.05f;
+	}
+
 
 	if (turnL == true) {
 		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
@@ -386,8 +404,8 @@ void Window::idleCallback()
 		}
 	}
 	*/
-	center.z -= 0.05;
-	eye.z -= 0.05;
+	//center.z -= 0.05;
+	//eye.z -= 0.05;
 	view = glm::lookAt(eye, center, up);
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -680,13 +698,6 @@ void Window::displayCallback(GLFWwindow* window)
 		break;
 	}
 
-	if (planetNumber == 0)
-	{
-		
-	}
-
-
-
 
 	// Render the objects.
 	// squad->draw(program, identity);
@@ -759,6 +770,30 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	default:
 		break;
 	}
+
+	switch (key)
+	{
+	case GLFW_KEY_UP:
+		if (action == GLFW_REPEAT) {
+			goForward = true;
+		}
+		else {
+			goForward = false;
+		}
+		break;
+
+	case GLFW_KEY_DOWN:
+		if (action == GLFW_REPEAT) {
+			goBackward = true;
+		}
+		else {
+			goBackward = false;
+		}
+
+	default: 
+		break;
+	}
+	
 }
 
 void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
