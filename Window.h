@@ -144,6 +144,8 @@ public:
 
 	static std::vector<std::vector<std::string>> skyboxVec;
 
+	static glm::vec3 eyeVec;
+
 	static bool initializeProgram();
 	static bool initializeObjects();
 	static void cleanUp();

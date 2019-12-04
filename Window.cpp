@@ -51,7 +51,8 @@ Transform* Window::sphere2World;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-glm::vec3 Window::eye(0, 0, 10); // Camera position. (0, 2, 10)
+glm::vec3 Window::eyeVec = glm::vec3(0, 3, 10);
+glm::vec3 Window::eye = eyeVec;  // Camera position. (0, 2, 10)
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
@@ -412,6 +413,7 @@ void Window::idleCallback()
 	glm::vec3 position = glm::column(spaceship->getModel(), 3);
 
 	if (camView) {
+		eye.y = position.y;
 		eye.z = position.z + 0.5f;
 		glm::vec3 c = center;
 		c.z -= 10.0f;
@@ -420,7 +422,8 @@ void Window::idleCallback()
 		
 	}
 	else {
-		eye.z = position.z + 10.0f;
+		eye.y = eyeVec.y;
+		eye.z = position.z + eyeVec.z;
 		view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
@@ -730,7 +733,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 0, 10);
+				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -743,7 +746,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 0, 10);
+				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -756,7 +759,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 0, 10);
+				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -769,7 +772,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				position = glm::column(spaceship->getModel(), 3);
 				spaceship->update(glm::translate(glm::mat4(1.0f), -1.0f * position));
 
-				eye = glm::vec3(0, 0, 10);
+				eye = eyeVec;
 				center = glm::vec3(0, 0, 0);
 				view = glm::lookAt(eye, center, up);
 				glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
