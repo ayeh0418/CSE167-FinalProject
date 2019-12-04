@@ -379,10 +379,10 @@ void Window::idleCallback()
 	if (turnL == true) {
 		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 0, 1)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.01, 0, 0)));
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.03, 0, 0)));
 		//spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 1, 0)));
-		eye.x -= 0.01;
-		center.x -= 0.01;
+		eye.x -= 0.03;
+		center.x -= 0.03;
 		// angle += 0.05f;
 	}
 	/*
@@ -396,9 +396,9 @@ void Window::idleCallback()
 	if (turnR == true) {
 		body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
-		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.01, 0, 0)));
-		eye.x += 0.01;
-		center.x += 0.01;
+		spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.03, 0, 0)));
+		eye.x += 0.03;
+		center.x += 0.03;
 	}
 	
 	//center.z -= 0.05;
