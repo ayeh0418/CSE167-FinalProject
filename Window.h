@@ -36,13 +36,14 @@ public:
 	static const char* windowTitle;
 	/*
 	static Geometry* eyeball;
-	static Geometry * sphere;
+
 	static Track * track;
 	*/
 	static Geometry* head;
 	static Geometry* body;
 	static Geometry* antenna;
 	static Geometry* wing;
+	static Geometry* sphere;
 	static Transform * spaceship;
 	static Transform * ship2world;
 	static Transform * body2ship;
@@ -56,6 +57,7 @@ public:
 	static Transform * antenna22ship;
 	static Transform * antenna32ship;
 	static Transform * antenna42ship;
+	static Transform* ball2ship;
 	static bool turnL, turnR, goForward, goBackward;
 	static float angle;
 
