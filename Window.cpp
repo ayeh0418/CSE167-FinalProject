@@ -362,9 +362,9 @@ void Window::idleCallback()
 		// eye.z = eye.z + (following.z - position.z);
 		// center = center + (following - position);
 		center = position;
-		ship2world->update(glm::translate(glm::mat4(1.0f), 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z))));
-		center += 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
-		eye += 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
+		ship2world->update(glm::translate(glm::mat4(1.0f), 0.07f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z))));
+		center += 0.07f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
+		eye += 0.07f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
 	}
 
 	if (goBackward == true)
@@ -373,9 +373,9 @@ void Window::idleCallback()
 		// eye.z = eye.z + (position.z - following.z);
 		// center.z = center.z + (position.z - following.z);
 		center = position;
-		ship2world->update(glm::translate(glm::mat4(1.0f), 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z))));
-		center += 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
-		eye += 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
+		ship2world->update(glm::translate(glm::mat4(1.0f), 0.07f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z))));
+		center += 0.07f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
+		eye += 0.07f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
 
 	}
 
@@ -385,10 +385,10 @@ void Window::idleCallback()
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 0, 1)));
 		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.03, 0, 0)));
 		center = position;
-		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
+		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 1, 0)));
 		glm::vec3 camDir = eye - center;
 		glm::vec4 camM = glm::vec4(camDir, 0.0f);
-		float angle = glm::radians(0.3f);
+		float angle = glm::radians(0.1f);
 		glm::vec3 axis = glm::vec3(0, 1, 0);
 		glm::mat4 rotateM = glm::rotate(angle, axis);
 		camM = rotateM * camM;
@@ -402,10 +402,10 @@ void Window::idleCallback()
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
 		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.03, 0, 0)));
 		center = position;
-		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
+		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 1, 0)));
 		glm::vec3 camDir = eye - center;
 		glm::vec4 camM = glm::vec4(camDir, 0.0f);
-		float angle = glm::radians(-0.3f);
+		float angle = glm::radians(-0.1f);
 		glm::vec3 axis = glm::vec3(0, 1, 0);
 		glm::mat4 rotateM = glm::rotate(angle, axis);
 		camM = rotateM * camM;
@@ -417,15 +417,14 @@ void Window::idleCallback()
 	glm::mat4 identity = glm::mat4(1.0f);
 
 	if (camView) {
+		eye = position + 0.5f * glm::normalize(eye - position);
 		eye.y = position.y;
-		eye.z = position.z + 0.5f;
-		glm::vec3 c = center;
-		c.z -= 10.0f;
-		view = glm::lookAt(eye, c, up);
+		view = glm::lookAt(eye, position, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		
 	}
 	else {
+		eye = position + 10.0f * glm::normalize(eye - position);
+		eye.y = eyeVec.y;
 		view = glm::lookAt(eye, center, up);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
@@ -836,12 +835,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 		break;
 
-	default:
-		break;
-	}
-
-	switch (key)
-	{
 	case GLFW_KEY_UP:
 		if (action == GLFW_REPEAT) {
 			goForward = true;
