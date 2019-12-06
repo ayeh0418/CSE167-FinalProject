@@ -361,7 +361,7 @@ void Window::idleCallback()
 		// ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, following.z - position.z)));
 		// eye.z = eye.z + (following.z - position.z);
 		// center = center + (following - position);
-
+		center = position;
 		ship2world->update(glm::translate(glm::mat4(1.0f), 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z))));
 		center += 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
 		eye += 0.05f * glm::normalize(glm::vec3(position.x - eye.x, 0, position.z - eye.z));
@@ -372,7 +372,7 @@ void Window::idleCallback()
 		// ship2world->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, position.z - following.z)));
 		// eye.z = eye.z + (position.z - following.z);
 		// center.z = center.z + (position.z - following.z);
-
+		center = position;
 		ship2world->update(glm::translate(glm::mat4(1.0f), 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z))));
 		center += 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
 		eye += 0.05f * glm::normalize(glm::vec3(eye.x - position.x, 0, eye.z - position.z));
@@ -384,7 +384,7 @@ void Window::idleCallback()
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0, -1, 0)));
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.1f), glm::vec3(0, 0, 1)));
 		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(-0.03, 0, 0)));
-
+		center = position;
 		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.3f), glm::vec3(0, 1, 0)));
 		glm::vec3 camDir = eye - center;
 		glm::vec4 camM = glm::vec4(camDir, 0.0f);
@@ -401,7 +401,7 @@ void Window::idleCallback()
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0, -1, 0)));
 		// body2ship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.1f), glm::vec3(0, 0, 1)));
 		// spaceship->update(glm::translate(glm::mat4(1.0f), glm::vec3(0.03, 0, 0)));
-
+		center = position;
 		spaceship->update(glm::rotate(glm::mat4(1.0f), glm::radians(-0.3f), glm::vec3(0, 1, 0)));
 		glm::vec3 camDir = eye - center;
 		glm::vec4 camM = glm::vec4(camDir, 0.0f);
