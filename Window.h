@@ -16,17 +16,20 @@
 #include <vector>
 #include <memory>
 #include <glm/gtc/matrix_access.hpp>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 #include "Object.h"
-#include "Cube.h"
-#include "PointCloud.h"
+// #include "Cube.h"
+// #include "PointCloud.h"
 #include "shader.h"
 #include "Node.h"
 #include "Geometry.h"
 #include "Transform.h"
 #include "Skybox.h"
-#include "BezierCurve.h"
-#include "Track.h"
+// #include "BezierCurve.h"
+// #include "Track.h"
+
 
 class Window
 {
@@ -34,11 +37,8 @@ public:
 	static int width;
 	static int height;
 	static const char* windowTitle;
-	/*
 	static Geometry* eyeball;
-
-	static Track * track;
-	*/
+	//static Track * track;
 	static Geometry* head;
 	static Geometry* body;
 	static Geometry* antenna;
@@ -61,26 +61,51 @@ public:
 	static bool turnL, turnR, goForward, goBackward;
 	static float angle;
 
-	/*
-	static Transform * robot;
-	static Transform * squad;
-	static Transform * head2Robot;
-	static Transform * antenna12Robot;
-	static Transform * antenna22Robot;
-	static Transform * eyeballL2Robot;
-	static Transform * eyeballR2Robot;
-	static Transform * arm12Robot;
-	static Transform * arm22Robot;
-	static Transform * arm32Robot;
-	static Transform * arm42Robot;
-	static Transform * arm52Robot;
-	static Transform * arm62Robot;
-	static Transform * sphere2Robot;
-	static Transform * sphere2World;
-	static Transform * env2World;
-	static Transform * world;
-	// static Transform* arms2Robot;
-	*/
+	// Andrew's alien
+	static Transform * robotA;
+	static Transform * squadA;
+	static Transform * head2RobotA;
+	static Transform * antenna12RobotA;
+	static Transform * antenna22RobotA;
+	static Transform * eyeballL2RobotA;
+	static Transform * eyeballR2RobotA;
+	static Transform * arm12RobotA;
+	static Transform * arm22RobotA;
+	static Transform * arm32RobotA;
+	static Transform * arm42RobotA;
+	static Transform * arm52RobotA;
+	static Transform * arm62RobotA;
+	static Transform * sphere2RobotA;
+	static Transform * sphere2WorldA;
+
+	// Jonathan's alien
+	static Transform* squadJ;
+	static Transform* transformLeftArm;
+	static Transform* transformRightArm;
+	static Transform* transformRightLeg;
+	static Transform* transformLeftLeg;
+	static Transform* transformHead;
+	static Transform* transformLeftEye;
+	static Transform* transformRightEye;
+	static Transform* transformLeftAntenna;
+	static Transform* transformRightAntenna;
+	static Transform* transformGroupArmy;
+	static Transform* transformBody;
+	static glm::mat4 tLArmMatrix;
+	static glm::mat4 tRArmMatrix;
+	static glm::mat4 tLLegMatrix;
+	static glm::mat4 tRLegMatrix;
+	static glm::mat4 tHeadMatrix;
+	static glm::mat4 tLAntenna;
+	static glm::mat4 tRAntenna;
+	static glm::mat4 tLEye;
+	static glm::mat4 tREye;
+	static bool rotateForward;
+	static float rotAngle;
+
+	// static Transform * env2World;
+	// static Transform * world;
+	
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;

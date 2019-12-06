@@ -4,11 +4,7 @@ int Window::width;
 int Window::height;
 
 const char* Window::windowTitle = "Project 3";
-
-/*
 Geometry * Window::eyeball;
-
-*/
 Geometry* Window::sphere;
 Geometry* Window::head;
 Geometry* Window::antenna;
@@ -33,24 +29,52 @@ bool Window::turnR = false;
 bool Window::goForward = false;
 bool Window::goBackward = false;
 float Window::angle = 0;
-/*
-Track * Window::track;
-Transform * Window::robot;
-Transform * Window::squad;
-Transform* Window::head2Robot;
-Transform* Window::antenna12Robot;
-Transform* Window::antenna22Robot;
-Transform* Window::eyeballL2Robot;
-Transform* Window::eyeballR2Robot;
-Transform* Window::arm12Robot;
-Transform* Window::arm22Robot;
-Transform* Window::arm32Robot;
-Transform* Window::arm42Robot;
-Transform* Window::arm52Robot;
-Transform* Window::arm62Robot;
-Transform* Window::sphere2Robot;
-Transform* Window::sphere2World;
-*/
+
+// Andrew's alien
+// Track * Window::track;
+Transform * Window::robotA;
+Transform * Window::squadA;
+Transform* Window::head2RobotA;
+Transform* Window::antenna12RobotA;
+Transform* Window::antenna22RobotA;
+Transform* Window::eyeballL2RobotA;
+Transform* Window::eyeballR2RobotA;
+Transform* Window::arm12RobotA;
+Transform* Window::arm22RobotA;
+Transform* Window::arm32RobotA;
+Transform* Window::arm42RobotA;
+Transform* Window::arm52RobotA;
+Transform* Window::arm62RobotA;
+Transform* Window::sphere2RobotA;
+Transform* Window::sphere2WorldA;
+
+// Jonathan's alien
+Transform* Window::squadJ;
+Transform* Window::transformLeftArm;
+Transform* Window::transformRightArm;
+Transform* Window::transformRightLeg;
+Transform* Window::transformLeftLeg;
+Transform* Window::transformHead;
+Transform* Window::transformLeftEye;
+Transform* Window::transformRightEye;
+Transform* Window::transformLeftAntenna;
+Transform* Window::transformRightAntenna;
+Transform* Window::transformGroupArmy;
+
+Transform* Window::transformBody;
+glm::mat4 Window::tLArmMatrix;
+glm::mat4 Window::tRArmMatrix;
+glm::mat4 Window::tLLegMatrix;
+glm::mat4 Window::tRLegMatrix;
+glm::mat4 Window::tHeadMatrix;
+glm::mat4 Window::tLAntenna;
+glm::mat4 Window::tRAntenna;
+glm::mat4 Window::tLEye;
+glm::mat4 Window::tREye;
+bool Window::rotateForward = true;
+float Window::rotAngle = 0.25f;
+
+
 glm::mat4 Window::projection; // Projection matrix.
 glm::vec3 Window::eyeVec = glm::vec3(0, 3, 10);
 glm::vec3 Window::eye = eyeVec;  // Camera position. (0, 2, 10)
@@ -147,7 +171,8 @@ bool Window::initializeProgram() {
 	modelLoc = glGetUniformLocation(program, "model");
 	// colorLoc = glGetUniformLocation(program, "color");
 
-	
+
+
 	return true;
 }
 
@@ -155,7 +180,7 @@ bool Window::initializeObjects()
 {
 	// On initialize, we begin in galaxy.
 	planetNumber = 0;
-
+	srand(time(NULL)); // random seed
 	std::vector<std::string> galaxy_skybox_faces
 	{
 		"Left_Tex.jpg",
@@ -211,6 +236,7 @@ bool Window::initializeObjects()
 	antenna = new Geometry("antenna_s.obj", env->getTexture());
 	body = new Geometry("body_s.obj", env->getTexture());
 	wing = new Geometry("limb_s.obj", env->getTexture());
+	eyeball = new Geometry("eyeball_s.obj", env->getTexture());
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
@@ -260,6 +286,160 @@ bool Window::initializeObjects()
 	// spaceship->addChild(ball2ship);
 
 	ship2world->addChild(spaceship);
+
+	// Andrew's aliens
+	glm::mat4 antennaScalerA = glm::scale(glm::vec3(0.35, 0.3, 0.35));
+	glm::mat4 antennaScaler2 = glm::scale(glm::vec3(0.35, 0.15, 0.35));
+	glm::mat4 eyeScaler = glm::scale(glm::vec3(2.0, 2.0, 2.0));
+	glm::mat4 sphereScaler = glm::scale(glm::vec3(2.5, 2.5, 2.5));
+	glm::mat4 antennaRot = glm::rotate(identity, -70.0f, glm::vec3(0, 0, 1));
+	glm::mat4 arm1Rot = glm::rotate(identity, 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+	glm::mat4 arm2Rot = glm::rotate(identity, -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+	glm::mat4 arm3Rot = glm::rotate(identity, 90.0f, glm::vec3(0, 0, 1));
+	glm::mat4 arm4Rot = glm::rotate(identity, -90.0f, glm::vec3(0, 0, 1));
+	glm::mat4 arm5Rot = glm::rotate(identity, 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+	glm::mat4 arm6Rot = glm::rotate(identity, -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+
+	robotA = new Transform(identity);
+	squadA = new Transform(identity);
+	// arms2Robot = new Transform(identity);
+	head2RobotA = new Transform(glm::translate(identity, glm::vec3(0, 0.5, 0)));
+	antenna12RobotA = new Transform(glm::translate(identity, glm::vec3(0, 1.35, 0)) * antennaScalerA);
+	antenna22RobotA = new Transform(glm::translate(identity, glm::vec3(0.25, 2.33, 0)) * antennaRot * antennaScaler2);
+	eyeballL2RobotA = new Transform(glm::translate(identity, glm::vec3(-0.25, 0.9, 0.85)));
+	eyeballR2RobotA = new Transform(glm::translate(identity, glm::vec3(0.25, 0.9, 0.85)));
+	arm12RobotA = new Transform(glm::translate(identity, glm::vec3(-1, 0.2, 1)) * arm1Rot);
+	arm22RobotA = new Transform(glm::translate(identity, glm::vec3(1, 0.2, 1)) * arm2Rot);
+	arm32RobotA = new Transform(glm::translate(identity, glm::vec3(-1.3, 0.2, 0)) * arm3Rot);
+	arm42RobotA = new Transform(glm::translate(identity, glm::vec3(1.3, 0.2, 0)) * arm4Rot);
+	arm52RobotA = new Transform(glm::translate(identity, glm::vec3(-1, 0.2, -1)) * arm5Rot);
+	arm62RobotA = new Transform(glm::translate(identity, glm::vec3(1, 0.2, -1)) * arm6Rot);
+	// sphere2RobotA = new Transform(glm::translate(identity, glm::vec3(0, 0.2, 0)) * sphereScaler);
+
+	robotA->addChild(head2RobotA);
+	robotA->addChild(antenna12RobotA);
+	robotA->addChild(antenna22RobotA);
+	robotA->addChild(eyeballL2RobotA);
+	robotA->addChild(eyeballR2RobotA);
+	robotA->addChild(arm12RobotA);
+	robotA->addChild(arm22RobotA);
+	robotA->addChild(arm32RobotA);
+	robotA->addChild(arm42RobotA);
+	robotA->addChild(arm52RobotA);
+	robotA->addChild(arm62RobotA);
+	// robotA->addChild(sphere2RobotA);
+	// robot->addChild(arms2Robot);
+	head2RobotA->addChild(head);
+	antenna12RobotA->addChild(antenna);
+	antenna22RobotA->addChild(antenna);
+	eyeballL2RobotA->addChild(eyeball);
+	eyeballR2RobotA->addChild(eyeball);
+	arm12RobotA->addChild(wing);
+	arm22RobotA->addChild(wing);
+	arm32RobotA->addChild(wing);
+	arm42RobotA->addChild(wing);
+	arm52RobotA->addChild(wing);
+	arm62RobotA->addChild(wing);
+	// sphere2RobotA->addChild(sphere);
+
+	for (int i = 0; i < 10; i++) {
+		float randX = rand() % 20 + -10;
+		float randY = rand() % 20 + -10;
+		float randZ = rand() % 20 + -10;
+		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, randY, randZ)));
+		squadA->addChild(newRobot);
+		newRobot->addChild(robotA);
+	}
+
+	// Jonathan's alien
+	squadJ = new Transform(identity);
+	transformGroupArmy = new Transform(identity);
+	transformBody = new Transform(identity);
+
+	tLArmMatrix = glm::mat4(1.0f);
+	tLArmMatrix = glm::translate(tLArmMatrix, glm::vec3(-1.25f, 0.0f, 0.0f));
+	tLArmMatrix = glm::scale(tLArmMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
+	transformLeftArm = new Transform(tLArmMatrix);
+
+	tRArmMatrix = glm::mat4(1.0f);
+	tRArmMatrix = glm::translate(tRArmMatrix, glm::vec3(1.25f, 0.0f, 0.0f));
+	tRArmMatrix = glm::scale(tRArmMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
+	transformRightArm = new Transform(tRArmMatrix);
+
+	tLLegMatrix = glm::mat4(1.0f);
+	tLLegMatrix = glm::translate(tLLegMatrix, glm::vec3(-0.6f, -1.5f, 0.0f));
+	tLLegMatrix = glm::scale(tLLegMatrix, glm::vec3(1.25f, 1.0f, 1.25f));
+	transformLeftLeg = new Transform(tLLegMatrix);
+
+	tRLegMatrix = glm::mat4(1.0f);
+	tRLegMatrix = glm::translate(tRLegMatrix, glm::vec3(0.6f, -1.5f, 0.0f));
+	tRLegMatrix = glm::scale(tRLegMatrix, glm::vec3(1.25f, 1.0f, 1.25f));
+	transformRightLeg = new Transform(tRLegMatrix);
+
+	tHeadMatrix = glm::mat4(1.0f);
+	tHeadMatrix = glm::translate(tHeadMatrix, glm::vec3(0.0f, 1.1f, 0.0f));
+	transformHead = new Transform(tHeadMatrix);
+
+	tLEye = glm::mat4(1.0f);
+	tLEye = glm::translate(tLEye, glm::vec3(-0.4f, 0.4f, 0.8f));
+	tLEye = glm::scale(tLEye, glm::vec3(1.5f, 1.5f, 1.5f));
+	transformLeftEye = new Transform(tLEye);
+
+	tREye = glm::mat4(1.0f);
+	tREye = glm::translate(tREye, glm::vec3(0.4f, 0.4f, 0.8f));
+	tREye = glm::scale(tREye, glm::vec3(1.5f, 1.5f, 1.5f));
+	transformRightEye = new Transform(tREye);
+
+	tLAntenna = glm::mat4(1.0f);
+	tLAntenna = glm::translate(tLAntenna, glm::vec3(-0.4f, 1.0f, 0.0f));
+	tLAntenna = glm::scale(tLAntenna, glm::vec3(0.75f, 0.1f, 0.2f));
+	tLAntenna = glm::rotate(tLAntenna, glm::radians(10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	transformLeftAntenna = new Transform(tLAntenna);
+
+	tRAntenna = glm::mat4(1.0f);
+	tRAntenna = glm::translate(tRAntenna, glm::vec3(0.4f, 1.0f, 0.0f));
+	tRAntenna = glm::scale(tRAntenna, glm::vec3(0.75f, 0.1f, 0.2f));
+	tRAntenna = glm::rotate(tRAntenna, glm::radians(-10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	transformRightAntenna = new Transform(tRAntenna);
+
+	transformBody->addChild(body);
+
+	transformBody->addChild(transformLeftArm);
+	transformLeftArm->addChild(wing);
+
+	transformBody->addChild(transformRightArm);
+	transformRightArm->addChild(wing);
+
+	transformBody->addChild(transformLeftLeg);
+	transformLeftLeg->addChild(wing);
+
+	transformBody->addChild(transformRightLeg);
+	transformRightLeg->addChild(wing);
+
+	transformBody->addChild(transformHead);
+	transformHead->addChild(head);
+
+	transformHead->addChild(transformLeftEye);
+	transformLeftEye->addChild(eyeball);
+
+	transformHead->addChild(transformRightEye);
+	transformRightEye->addChild(eyeball);
+
+	transformHead->addChild(transformLeftAntenna);
+	transformLeftAntenna->addChild(antenna);
+
+	transformHead->addChild(transformRightAntenna);
+	transformRightAntenna->addChild(antenna);
+
+	for (int j = 0; j < 10; j++) {
+		float randX = rand() % 30 + -15;
+		float randZ = rand() % 30 + -15;
+		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, -5, randZ)));
+		squadJ->addChild(newRobot);
+		newRobot->addChild(transformBody);
+	}
+
 	return true;
 }
 
@@ -429,7 +609,7 @@ void Window::idleCallback()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	}
 	
-	/*
+	// Andrew's alien
 	timer++;
 	if (timer % 60 == 0) {
 		rotSpeed = rotSpeed * -1;
@@ -472,21 +652,57 @@ void Window::idleCallback()
 	glm::mat4 R6 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 	glm::mat4 inverseR6 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 
-	antenna22Robot->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)) * antennaRot);
+	antenna22RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)) * antennaRot);
 	
-	arm12Robot->update(T1 * R1 * armRotL * inverseR1 * inverseT1);
-	arm22Robot->update(T2 * R2 * armRotR * inverseR2 * inverseT2);
-	arm32Robot->update(T3 * armRotL * inverseT3);
-	arm42Robot->update(T4 * armRotR * inverseT4);
-	arm52Robot->update(T5 * R5 * armRotL * inverseR5 * inverseT5);
-	arm62Robot->update(T6 * R6 * armRotR * inverseR6 * inverseT6);
+	arm12RobotA->update(T1 * R1 * armRotL * inverseR1 * inverseT1);
+	arm22RobotA->update(T2 * R2 * armRotR * inverseR2 * inverseT2);
+	arm32RobotA->update(T3 * armRotL * inverseT3);
+	arm42RobotA->update(T4 * armRotR * inverseT4);
+	arm52RobotA->update(T5 * R5 * armRotL * inverseR5 * inverseT5);
+	arm62RobotA->update(T6 * R6 * armRotR * inverseR6 * inverseT6);
 	// arms2Robot->update(armsRot);
 
-	head2Robot->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	antenna12Robot->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	eyeballL2Robot->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	eyeballR2Robot->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	*/
+	head2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+	antenna12RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+	eyeballL2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+	eyeballR2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+
+
+	// Jonathan's alien
+	//if (rotationTimer % 200 == 0)
+	if (timer == 200)
+	{
+		if (rotateForward == true)
+		{
+			//start from -1000 because you need to go back all the way pass "middle"
+			timer = -200;
+			rotateForward = false;
+		}
+		else
+		{
+			timer = -200;
+			rotateForward = true;
+		}
+		//rotAngle = -rotAngle;
+	}
+
+	// Perform any updates as necessary. 
+	// currentObj->update();
+
+	if (rotateForward == true)
+	{
+		transformLeftArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformRightArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformRightLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformLeftLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+	}
+	else
+	{
+		transformLeftArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformRightArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformRightLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+		transformLeftLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -664,6 +880,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);
+		squadJ->draw(program, identity);
 
 		env1->draw();
 
@@ -677,6 +894,7 @@ void Window::displayCallback(GLFWwindow* window)
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);
+		squadA->draw(program, identity);
 
 		env2->draw();
 

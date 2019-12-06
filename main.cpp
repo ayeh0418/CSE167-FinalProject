@@ -1,5 +1,12 @@
+// #import "ikpMP3.dll"
 #include "main.h"
+/*
+#include "irrKlang-1.6.0/include/irrKlang.h"
+#pragma comment(lib, "irrKlang.lib")
+using namespace irrklang;
 
+ISoundEngine* SoundEngine = createIrrKlangDevice();
+*/
 void error_callback(int error, const char* description)
 {
 	// Print error.
@@ -50,6 +57,7 @@ void print_versions()
 
 int main(void)
 {
+	// SoundEngine->play2D("breakout.mp3", GL_TRUE);
 	// Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(640, 480);
 	if (!window) exit(EXIT_FAILURE);

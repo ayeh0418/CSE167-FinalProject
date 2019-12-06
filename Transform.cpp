@@ -16,9 +16,13 @@ Transform::~Transform() {
 }
 
 void Transform::draw(GLuint shaderProgram, glm::mat4 C) { 
-	if (showRobot) {
-		glm::mat4 newM = C * M;
-		for (const auto& child : children) {
+	// if (showRobot) {
+		
+	// }
+	glm::mat4 newM = C * M;
+	for (const auto& child : children) {
+		if (child != nullptr)
+		{
 			child->draw(shaderProgram, newM);
 		}
 	}
