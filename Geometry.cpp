@@ -26,18 +26,18 @@ void Geometry::draw(GLuint programShader, glm::mat4 C) {
 
 	// Bind to the VAO.
 	glBindVertexArray(vao);
-	/*
+	
 	if (file.compare("sphere.obj") == 0) {
 		if (show) {
 			glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 		}
-	}*/
-	// else {
-	//	if (showRobot) {
+	} 
+	else {
+		// if (showRobot) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);  	
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	//	}
-	// }
+		// }
+	}
 	// Unbind from the VAO.
 	glBindVertexArray(0);
 }

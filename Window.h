@@ -103,6 +103,20 @@ public:
 	static bool rotateForward;
 	static float rotAngle;
 
+	// Daniel's alien
+	static Transform * robotD;
+	static Transform * body2Bot;
+	static Transform* head2Bot;
+	static Transform* leftEye;
+	static Transform* rightEye;
+	static Transform* leftArm;
+	static Transform* rightArm;
+	static Transform* leftLeg;
+	static Transform* rightLeg;
+	static Transform* sprout;
+	static Transform* leftLeaf;
+	static Transform* rightLeaf;
+
 	// static Transform * env2World;
 	// static Transform * world;
 	
