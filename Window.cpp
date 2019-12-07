@@ -6,6 +6,7 @@ using namespace irrklang;
 ISoundEngine* SoundEngine = createIrrKlangDevice();
 ISound* background;
 ISound* pilot;
+ISound* collect;
 
 int Window::width;
 int Window::height;
@@ -208,7 +209,9 @@ bool Window::initializeProgram() {
 	modelLoc = glGetUniformLocation(program, "model");
 	// colorLoc = glGetUniformLocation(program, "color");
 
-	background = SoundEngine->play2D("breakout.mp3", GL_TRUE);
+	background = SoundEngine->play3D("breakout.mp3", vec3df(0, 0, 0), true, false, true);
+	pilot = SoundEngine->play3D("pilot.mp3", vec3df(0, 0, 0), true, false, true);
+	pilot->setIsPaused(true); // pause the sound
 
 	return true;
 }
@@ -974,7 +977,10 @@ void Window::displayCallback(GLFWwindow* window)
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
 		if (glm::distance(x, ship) <= 3) {
-			child->setShowRobot(false);
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
 		}
 	}
 	
@@ -984,7 +990,10 @@ void Window::displayCallback(GLFWwindow* window)
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
 		if (glm::distance(x, ship) <= 3) {
-			child->setShowRobot(false);
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
 		}
 	}
 	
@@ -994,7 +1003,10 @@ void Window::displayCallback(GLFWwindow* window)
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
 		if (glm::distance(x, ship) <= 3) {
-			child->setShowRobot(false);
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
 		}
 	}
 
@@ -1135,11 +1147,15 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				// pilot = SoundEngine->play2D("pilot.mp3", GL_TRUE);
 				// background->stop();
 				// background->drop();
+				background->setIsPaused(true); // pause the sound
+				pilot->setIsPaused(false); // unpause the sound
 			}
 			else {
 				// background = SoundEngine->play2D("breakout.mp3", GL_TRUE);
 				// pilot->stop();
 				// pilot->drop();
+				background->setIsPaused(false); // unpause the sound
+				pilot->setIsPaused(true); // pause the sound
 			}
 			break;
 		

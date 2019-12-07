@@ -35,6 +35,7 @@ public:
 	bool getShow() { return show; }
 	void setShow(bool showSphere) { show = showSphere; }
 	void setShowRobot(bool showR) {}
+	bool getShowRobot() { return showRobot; }
 	void draw(GLuint programShader, glm::mat4 C);
 	void update(glm::mat4 C);
 	void init(std::string filename);

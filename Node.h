@@ -20,6 +20,7 @@ public:
 	glm::mat4 getModel() { return model; }
 	glm::vec3 getColor() { return color; }
 	virtual void setShowRobot(bool showR) = 0;
+	virtual bool getShowRobot() = 0;
 	virtual void draw(GLuint shaderProgram, glm::mat4 C) = 0;
 	virtual void update(glm::mat4 C) = 0;
 };

@@ -27,6 +27,7 @@ public:
 	
 	std::list<Node*> getChildren() { return children; }
 	void setShowRobot(bool showR) { showRobot = showR; }
+	bool getShowRobot() { return showRobot; }
 	void draw(GLuint shaderprogram, glm::mat4 C) override;
 	void update(glm::mat4 C) override;
 	void addChild(Node* child);
