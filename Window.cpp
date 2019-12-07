@@ -303,7 +303,6 @@ bool Window::initializeObjects()
 			float max2 = terrainYValue + (YTerrainMagnitude / 2);
 
 			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
-			std::cout << noise << std::endl;
 
 			v1.push_back(randomYNum);
 		}
