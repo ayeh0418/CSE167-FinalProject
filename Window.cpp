@@ -74,6 +74,7 @@ bool Window::rotateForward = true;
 float Window::rotAngle = 0.25f;
 
 // Daniel's alien
+Transform* Window::squadD;
 Transform* Window::robotD;
 Transform* Window::body2Bot;
 Transform* Window::head2Bot;
@@ -356,7 +357,7 @@ bool Window::initializeObjects()
 
 	for (int i = 0; i < 10; i++) {
 		float randX = rand() % 20 -10;
-		float randY = rand() % 20 -10;
+		float randY = rand() % 4 -2;
 		float randZ = rand() % 30 - 30;
 		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, randY, randZ)));
 		squadA->addChild(newRobot);
@@ -454,6 +455,7 @@ bool Window::initializeObjects()
 
 
 	// Daniel's alien
+	squadD = new Transform(identity);
 	glm::mat4 robotScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.9, 0.9, 0.9));
 	glm::mat4 eyeScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.45, 0.45, 0.45));
 	glm::mat4 headBodyMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.8, 0.8, 0.8));
@@ -461,18 +463,18 @@ bool Window::initializeObjects()
 	glm::mat4 sproutScaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
 	robotD = new Transform(identity);
 	body2Bot = new Transform(identity * headBodyMatrix);
-	head2Bot = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 6.5, 0)) * headBodyMatrix);
-	leftEye = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-2, 5, 5)) * eyeScaleMatrix);
-	rightEye = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(2, 5, 5)) * eyeScaleMatrix);
-	leftArm = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-5, 0, 0)) * headBodyMatrix);
-	rightArm = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(5, 0, 0)) * headBodyMatrix);
-	leftLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-3, -3, 0)) * headBodyMatrix);
-	rightLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(3, -3, 0)) * headBodyMatrix);
-	sprout = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 8, 0)) * antennaScaleMatrix);
-	leftLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.7, 11.2, 0)) * sproutScaleMatrix);
-	rightLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.7, 11.2, 0)) * sproutScaleMatrix);
-	robotD->addChild(body);
-	robotD->addChild(head);
+	head2Bot = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.9, 0)) * headBodyMatrix);
+	leftEye = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.2, 1.3, 0.65)) * eyeScaleMatrix);
+	rightEye = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.2, 1.3, 0.65)) * eyeScaleMatrix);
+	leftArm = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-1, 0, 0)) * headBodyMatrix);
+	rightArm = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 0)) * headBodyMatrix);
+	leftLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.7, -1.3, 0)) * headBodyMatrix);
+	rightLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.7, -1.3, 0)) * headBodyMatrix);
+	sprout = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.7, 0)) * antennaScaleMatrix);
+	leftLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 2.1, 0)) );
+	rightLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 2.1, 0)) );
+	robotD->addChild(body2Bot);
+	robotD->addChild(head2Bot);
 	robotD->addChild(leftEye);
 	robotD->addChild(rightEye);
 	robotD->addChild(leftArm);
@@ -496,6 +498,13 @@ bool Window::initializeObjects()
 	leftLeaf->addChild(eyeball);
 	rightLeaf->addChild(eyeball);
 
+	for (int k = 0; k < 10; k++) {
+		float randX = rand() % 30 - 15;
+		float randZ = rand() % 30 - 30;
+		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, 0, randZ)));
+		squadD->addChild(newRobot);
+		newRobot->addChild(robotD);
+	}
 	return true;
 }
 
@@ -641,6 +650,11 @@ void Window::idleCallback()
 		eye = position + 0.5f * glm::normalize(eye - position);
 		eye.y = position.y;
 		view = glm::lookAt(eye, position, up);
+
+		// center = position + 1.0f * glm::normalize(position - eye);
+		// std::cout << "c: " << center.z << " p: " << position.z << " e: " << eye.z << std::endl;
+		// eye = position;
+		//  view = glm::lookAt(eye, center, up);
 	}
 	else {
 		eye = position + 10.0f * glm::normalize(eye - position);
@@ -894,6 +908,16 @@ void Window::displayCallback(GLFWwindow* window)
 			child->setShowRobot(false);
 		}
 	}
+	
+	for (Node* child : squadD->getChildren()) {
+		glm::mat4 model = ((Transform*)child)->getModel();
+		glm::vec3 x = glm::column(model, 3);
+		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+		if (glm::distance(x, ship) <= 3) {
+			child->setShowRobot(false);
+		}
+	}
 
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
@@ -949,7 +973,7 @@ void Window::displayCallback(GLFWwindow* window)
 		wing->setSkyboxTexture(env3->getTexture());
 		body->setSkyboxTexture(env3->getTexture());
 
-		// robotD->draw(program, identity);
+		squadD->draw(program, identity);
 		env3->draw();
 		break;
 

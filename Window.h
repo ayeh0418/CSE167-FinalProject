@@ -104,6 +104,7 @@ public:
 	static float rotAngle;
 
 	// Daniel's alien
+	static Transform* squadD;
 	static Transform * robotD;
 	static Transform * body2Bot;
 	static Transform* head2Bot;
