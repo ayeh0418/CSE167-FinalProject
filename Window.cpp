@@ -124,6 +124,16 @@ int Window::planetNumber;
 
 std::vector<std::vector<std::string>> Window::skyboxVec;
 
+int Window::cols;
+int Window::rows;
+int Window::scale;
+int Window::terrainHeight;
+int Window::terrainWidth;
+int Window::terrainYValue;
+int Window::YTerrainMagnitude;
+std::vector<std::vector<float>> Window::terrainYVec;
+PerlinNoise Window::pn;
+
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	program = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
@@ -134,6 +144,12 @@ bool Window::initializeProgram() {
 	if (!program)
 	{
 		std::cerr << "Failed to initialize shader program" << std::endl;
+		return false;
+	}
+
+	if (!trackProgram)
+	{
+		std::cerr << "Failed to initialize track shader program" << std::endl;
 		return false;
 	}
 
@@ -260,6 +276,36 @@ bool Window::initializeObjects()
 	// spaceship->addChild(ball2ship);
 
 	ship2world->addChild(spaceship);
+
+	//TODO: May need to update this
+	scale = 2;
+	terrainWidth = 300;
+	terrainHeight = 300;
+	cols = terrainWidth / scale;
+	rows = terrainHeight / scale;
+	terrainYValue = -20;
+	YTerrainMagnitude = 10;
+	
+	//initialize terrainYValue
+	for (int z = 0; z < rows; z++) 
+	{
+		std::vector<float> v1;
+		for (int x = 0; x < cols; x++)
+		{
+			//float noise = pn.noise(x, 2.0, z);
+			float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
+
+			/*float min1 = 0;
+			float max1 = 1;
+			float min2 = -50;
+			float max2 = 50;
+
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;*/
+			v1.push_back(randomYNum);
+		}
+		terrainYVec.push_back(v1);
+	}
+
 	return true;
 }
 
@@ -640,6 +686,9 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
+	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+
 
 	switch (planetNumber)
 	{
@@ -661,6 +710,44 @@ void Window::displayCallback(GLFWwindow* window)
 		antenna->setSkyboxTexture(env1->getTexture());
 		wing->setSkyboxTexture(env1->getTexture());
 		body->setSkyboxTexture(env1->getTexture());
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		//glBegin(GL_LINE_STRIP);
+	
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
+				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
+
+			}
+			glEnd();
+
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		/*glBegin(GL_LINES);
+		for (int i = -10; i <= 10; i++)
+		{
+			glVertex3f((float)i, 0, (float)-10);
+			glVertex3f((float)i, 0, (float)10);
+
+			glVertex3f((float)-10, 0, (float)i);
+			glVertex3f((float)10, 0, (float)i);
+		}
+		glEnd();*/
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);

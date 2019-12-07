@@ -16,6 +16,7 @@
 #include <vector>
 #include <memory>
 #include <glm/gtc/matrix_access.hpp>
+#include <stdlib.h>
 
 #include "Object.h"
 #include "Cube.h"
@@ -27,6 +28,7 @@
 #include "Skybox.h"
 #include "BezierCurve.h"
 #include "Track.h"
+#include "PerlinNoise.h"
 
 class Window
 {
@@ -147,6 +149,16 @@ public:
 	static std::vector<std::vector<std::string>> skyboxVec;
 
 	static glm::vec3 eyeVec;
+
+	static int cols;
+	static int rows;
+	static int scale;
+	static int terrainHeight;
+	static int terrainWidth;
+	static int terrainYValue;
+	static int YTerrainMagnitude;
+	static std::vector<std::vector<float>> terrainYVec;
+	static PerlinNoise pn;
 
 	static bool initializeProgram();
 	static bool initializeObjects();
