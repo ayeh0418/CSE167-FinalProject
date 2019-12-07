@@ -285,6 +285,8 @@ bool Window::initializeObjects()
 	rows = terrainHeight / scale;
 	terrainYValue = -20;
 	YTerrainMagnitude = 10;
+	unsigned int seed = 227;
+	pn = PerlinNoise(seed);
 	
 	//initialize terrainYValue
 	for (int z = 0; z < rows; z++) 
@@ -292,15 +294,17 @@ bool Window::initializeObjects()
 		std::vector<float> v1;
 		for (int x = 0; x < cols; x++)
 		{
-			//float noise = pn.noise(x, 2.0, z);
-			float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
+			float noise = pn.noise(x, 0.2, z);
+			//float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
 
-			/*float min1 = 0;
+			float min1 = 0;
 			float max1 = 1;
-			float min2 = -50;
-			float max2 = 50;
+			float min2 = terrainYValue - (YTerrainMagnitude / 2);
+			float max2 = terrainYValue + (YTerrainMagnitude / 2);
 
-			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;*/
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
+			std::cout << noise << std::endl;
+
 			v1.push_back(randomYNum);
 		}
 		terrainYVec.push_back(v1);
