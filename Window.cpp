@@ -514,6 +514,14 @@ bool Window::initializeObjects()
 	leftLeaf->addChild(eyeball);
 	rightLeaf->addChild(eyeball);
 
+	for (int k = 0; k < 10; k++) {
+		float randX = rand() % 30 - 15;
+		float randZ = rand() % 30 - 30;
+		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, 0, randZ)));
+		squadD->addChild(newRobot);
+		newRobot->addChild(robotD);
+	}
+
 	//TODO: May need to update this
 	scale = 2;
 	terrainWidth = 300;
@@ -544,14 +552,6 @@ bool Window::initializeObjects()
 			v1.push_back(randomYNum);
 		}
 		terrainYVec.push_back(v1);
-	}
-
-	for (int k = 0; k < 10; k++) {
-		float randX = rand() % 30 - 15;
-		float randZ = rand() % 30 - 30;
-		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, 0, randZ)));
-		squadD->addChild(newRobot);
-		newRobot->addChild(robotD);
 	}
 	return true;
 }
