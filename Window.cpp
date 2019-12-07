@@ -1020,8 +1020,10 @@ void Window::displayCallback(GLFWwindow* window)
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);
+		squadJ->draw(program, identity);
 
 		env1->draw();
+
 		break;
 
 	case 2:
