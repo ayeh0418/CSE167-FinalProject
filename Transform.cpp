@@ -19,7 +19,10 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 C) {
 	if (showRobot) {
 		glm::mat4 newM = C * M;
 		for (const auto& child : children) {
-			child->draw(shaderProgram, newM);
+			if (child != nullptr)
+			{
+				child->draw(shaderProgram, newM);
+			}
 		}
 	}
 }
