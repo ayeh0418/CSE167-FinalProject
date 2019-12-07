@@ -118,6 +118,7 @@ public:
 	static Transform* sprout;
 	static Transform* leftLeaf;
 	static Transform* rightLeaf;
+	static bool forwardMotion;
 
 	// static Transform * env2World;
 	// static Transform * world;

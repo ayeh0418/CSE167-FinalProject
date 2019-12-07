@@ -1,4 +1,11 @@
 #include "Window.h"
+#include "irrKlang-1.6.0/include/irrKlang.h"
+#pragma comment(lib, "irrKlang.lib")
+using namespace irrklang;
+
+ISoundEngine* SoundEngine = createIrrKlangDevice();
+ISound* background;
+ISound* pilot;
 
 int Window::width;
 int Window::height;
@@ -87,6 +94,7 @@ Transform* Window::rightLeg;
 Transform* Window::sprout;
 Transform* Window::leftLeaf;
 Transform* Window::rightLeaf;
+bool Window::forwardMotion = true;
 
 glm::mat4 Window::projection; // Projection matrix.
 glm::vec3 Window::eyeVec = glm::vec3(0, 3, 10);
@@ -200,7 +208,7 @@ bool Window::initializeProgram() {
 	modelLoc = glGetUniformLocation(program, "model");
 	// colorLoc = glGetUniformLocation(program, "color");
 
-
+	background = SoundEngine->play2D("breakout.mp3", GL_TRUE);
 
 	return true;
 }
@@ -800,6 +808,29 @@ void Window::idleCallback()
 		transformRightLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
 		transformLeftLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
 	}
+
+	
+	// Daniel's alien
+	if (timer % 450 == 0) {
+		if (forwardMotion) {
+			forwardMotion = false;
+		}
+		else {
+			forwardMotion = true;
+		}
+	}
+	if (forwardMotion) {
+		rightArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+		leftArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+		rightLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+		leftLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+	}
+	else {
+		rightArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+		leftArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+		rightLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+		leftLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -1099,6 +1130,17 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 		case GLFW_KEY_C:
 			camView = !camView;
+
+			if (camView) {
+				// pilot = SoundEngine->play2D("pilot.mp3", GL_TRUE);
+				// background->stop();
+				// background->drop();
+			}
+			else {
+				// background = SoundEngine->play2D("breakout.mp3", GL_TRUE);
+				// pilot->stop();
+				// pilot->drop();
+			}
 			break;
 		
 		case GLFW_KEY_0:
