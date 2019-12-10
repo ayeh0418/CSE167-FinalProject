@@ -104,6 +104,12 @@ glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
 
+//directional light values
+glm::vec3 Window::lightDir(1.0f, -0.7f, -0.4f);
+glm::vec3 Window::lightAmb(0.05f, 0.05f, 0.05f);
+glm::vec3 Window::lightDif(1.0f, 1.0f, 1.0f);
+glm::vec3 Window::lightSpec(1.0f, 1.0f, 1.0f);
+
 // View matrix, defined by eye, center and up.
 glm::mat4 Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
 
@@ -116,6 +122,10 @@ GLuint Window::viewLoc; // Location of view in shader.
 GLuint Window::viewPosLoc; // Location of viewPos in shader.
 GLuint Window::modelLoc; // Location of model in shader.
 GLuint Window::colorLoc; // Location of color in shader.
+GLuint Window::lightDirLoc;
+GLuint Window::lightAmbLoc;
+GLuint Window::lightDifLoc;
+GLuint Window::lightSpecLoc;
 
 bool Window::pressed = false;
 int Window::mode = 0;
@@ -207,6 +217,11 @@ bool Window::initializeProgram() {
 	viewLoc = glGetUniformLocation(program, "view");
 	viewPosLoc = glGetUniformLocation(program, "viewPos");
 	modelLoc = glGetUniformLocation(program, "model");
+	//directional light uniforms
+	lightDirLoc = glGetUniformLocation(program, "light.direction");
+	lightSpecLoc = glGetUniformLocation(program, "light.specular");
+	lightAmbLoc = glGetUniformLocation(program, "light.ambient");
+	lightDifLoc = glGetUniformLocation(program, "light.diffuse");
 	// colorLoc = glGetUniformLocation(program, "color");
 
 	background = SoundEngine->play3D("breakout.mp3", vec3df(0, 0, 0), true, false, true);
@@ -1016,6 +1031,10 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
+	glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+	glUniform3fv(lightDifLoc, 1, glm::value_ptr(lightDif));
+	glUniform3fv(lightAmbLoc, 1, glm::value_ptr(lightAmb));
+	glUniform3fv(lightSpecLoc, 1, glm::value_ptr(lightSpec));
 	
 	glm::mat4 identity = glm::mat4(1.0f);
 

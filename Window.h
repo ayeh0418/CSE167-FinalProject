@@ -127,7 +127,9 @@ public:
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;
 	static GLuint program, skyboxProgram, trackProgram, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc;
+	static GLuint lightDirLoc, lightAmbLoc, lightDifLoc, lightSpecLoc;
 	static glm::vec3 lastPos;
+	static glm::vec3 lightDir, lightAmb, lightDif, lightSpec;
 	static bool pressed;
 	static int mode;
 	static int timer;
