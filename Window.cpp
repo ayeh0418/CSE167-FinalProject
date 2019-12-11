@@ -115,7 +115,8 @@ float Window::floatSpeed = -0.006f;
 double Window::fov = 60;
 double Window::maxFov = 60;
 double Window::near = 1;
-double Window::far = 1000;
+//double Window::far = 1000;
+double Window::far = 200;
 double Window::nearW;
 double Window::farW;
 double Window::nearH;
@@ -169,6 +170,7 @@ int Window::terrainYValue;
 int Window::YTerrainMagnitude;
 std::vector<std::vector<float>> Window::terrainYVec;
 PerlinNoise Window::pn;
+float Window::flying;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -512,27 +514,44 @@ bool Window::initializeObjects()
 	leftLeaf->addChild(eyeball);
 	rightLeaf->addChild(eyeball);
 
-	//TODO: May need to update this
+	//terrain values
 	scale = 2;
-	terrainWidth = 300;
-	terrainHeight = 300;
+	//terrainWidth = 300;
+	//terrainHeight = 300;
+	terrainWidth = 1000;
+	terrainHeight = 1000;
 	cols = terrainWidth / scale;
 	rows = terrainHeight / scale;
 	terrainYValue = -20;
 	YTerrainMagnitude = 50;
 	unsigned int seed = 227;
 	pn = PerlinNoise(seed);
+	flying = 0;
+
+	pn = PerlinNoise(rand());
+
 
 	//initialize terrainYValue
+	//float zoff = flying;
+	//flying -= 0.1;
+	//zoff = flying;
 	float zoff = 0;
+
+	//topLeft.z -= flying;
+	//std::cout << "=====================" << std::endl;
 	for (int z = 0; z < rows; z++)
+		//for (int z = 0; z < 3; z++)
 	{
 		std::vector<float> v1;
 		float xoff = 0;
 		for (int x = 0; x < cols; x++)
+			//for (int x = 0; x < 3; x++)
 		{
 			float noise = pn.noise(xoff, 0.2, zoff);
 			//float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
+
+			//std::cout << noise << std::endl;
+
 
 			float min1 = 0;
 			float max1 = 1;
@@ -542,7 +561,7 @@ bool Window::initializeObjects()
 			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
 
 			v1.push_back(randomYNum);
-			xoff += 0.1;
+			xoff += 0.075;
 		}
 		terrainYVec.push_back(v1);
 		zoff += 0.1;
@@ -963,6 +982,8 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 center = glm::column(ship2world->getModel(), 3);
+	//glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale + center.x, terrainYValue, -(rows / 2) * scale + center.z);
 	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
 
 

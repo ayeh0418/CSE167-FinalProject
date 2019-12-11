@@ -158,6 +158,7 @@ public:
 	static bool showRobot;
 	static int cullNum;
 	static bool culling;
+	static float flying;
 
 	static Skybox* env;
 	static Skybox* env1;
