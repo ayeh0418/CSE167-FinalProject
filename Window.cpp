@@ -230,7 +230,7 @@ bool Window::initializeProgram() {
 	}
 
 	// Activate the shader program.
-	glUseProgram(depthCheckProgram);
+	glUseProgram(program);
 	
 	// Get the locations of uniform variables.
 	projectionLoc = glGetUniformLocation(program, "projection");
@@ -305,6 +305,9 @@ bool Window::initializeObjects()
 	env1 = new Skybox(1.0f, skyboxVec[1]);
 	env2 = new Skybox(1.0f, skyboxVec[2]);
 	env3 = new Skybox(1.0f, skyboxVec[3]);
+
+	glUniform1i(glGetUniformLocation(program, "shadowMap"), 0);
+	glUniform1i(glGetUniformLocation(program, "skybox"), 1);
 
 	//generating framebuffers for shadowmapping
 	glGenFramebuffers(1, &depthMapFBO);
@@ -917,7 +920,8 @@ void Window::displayCallback(GLFWwindow* window)
 	float near = 1.0f, far = 50.0f;
 	glm::mat4 lightProjection = glm::ortho(-35.0f, 35.0f, -35.0f, 35.0f,
 		near, far);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(-4.0f, 2.8f, 1.6f), center, up);
+	glm::vec3 lightPos = glm::vec3(-4.0f, 2.8f, 1.6f);
+	glm::mat4 lightView = glm::lookAt(lightPos, center, up);
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 	// first pass: render to depth map
@@ -932,20 +936,22 @@ void Window::displayCallback(GLFWwindow* window)
 
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(depthCheckProgram);
-	glUniform1f(glGetUniformLocation(depthCheckProgram, "near_plane"), near);
-	glUniform1f(glGetUniformLocation(depthCheckProgram, "far_plane"), far);
+	glUseProgram(program);
+	glUniformMatrix4fv(glGetUniformLocation(program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-	//// second pass: use depth map to render shadows in scene
-	//glViewport(0, 0, width, height);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//ConfigureShaderAndMatrices();
+	renderScene();
+
+
+	//rendering the depth map
+	//glUseProgram(depthCheckProgram);
+	//glUniform1f(glGetUniformLocation(depthCheckProgram, "near_plane"), near);
+	//glUniform1f(glGetUniformLocation(depthCheckProgram, "far_plane"), far);
+	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//renderScene();
+	//glBindVertexArray(quadVAO);
+	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	//glBindVertexArray(0);
 	
 	
 	// Gets events, including input such as keyboard and mouse or window resizing.
@@ -1260,7 +1266,7 @@ void Window::renderScene() {
 	}
 
 	// Clear the color and depth buffers.
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -1272,7 +1278,6 @@ void Window::renderScene() {
 
 	glm::mat4 identity = glm::mat4(1.0f);
 
-	glUseProgram(program);
 	ship2world->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
