@@ -143,6 +143,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\depthCheck_shader.frag" />
+    <None Include="shaders\depthCheck_shader.vert" />
+    <None Include="shaders\depth_shader.frag" />
+    <None Include="shaders\depth_shader.vert" />
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
     <None Include="shaders\skybox_shader.frag" />

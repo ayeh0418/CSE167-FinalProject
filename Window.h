@@ -122,11 +122,18 @@ public:
 
 	// static Transform * env2World;
 	// static Transform * world;
+
+	//framebuffers and other stuff for shadow mapping
+	static unsigned int depthMapFBO;
+	static unsigned int SHADOW_WIDTH;
+	static unsigned int SHADOW_HEIGHT;
+	static unsigned int depthMap;
+	//shadow mapping end
 	
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;
-	static GLuint program, skyboxProgram, trackProgram, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc;
+	static GLuint program, skyboxProgram, trackProgram, depthProgram, depthCheckProgram, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc;
 	static GLuint lightDirLoc, lightAmbLoc, lightDifLoc, lightSpecLoc;
 	static glm::vec3 lastPos;
 	static glm::vec3 lightDir, lightAmb, lightDif, lightSpec;
@@ -179,6 +186,9 @@ public:
 	static double leftover;
 	static bool camView;
 
+	static float quadVertices[];
+	static unsigned int quadVAO;
+	static unsigned int quadVBO;
 	/*
      * Planet Numbers:
 	 *  0 : Galaxy
@@ -214,6 +224,8 @@ public:
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static glm::vec3 trackBallMapping(glm::vec2 point);
+	static void renderScene();
+	static void renderSceneDepth();
 };
 
 #endif

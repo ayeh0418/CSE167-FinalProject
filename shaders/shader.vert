@@ -15,18 +15,28 @@ layout (location = 1) in vec3 normal;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 
 // Outputs of the vertex shader are the inputs of the same name of the fragment shader.
 // The default output, gl_Position, should be assigned something. You can define as many
 // extra outputs as you need.
 
-out vec3 normalOutput;
-out vec3 posOutput;
+//out vec3 normalOutput;
+//out vec3 posOutput;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec4 FragPosLightSpace;
+} vs_out;
 
 void main()
 {
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
     gl_Position = projection * view * model * vec4(position, 1.0);
-	posOutput = vec3(model * vec4(position, 1.0f));
-	normalOutput = mat3(transpose(inverse(model))) * normal;
+//	posOutput = vec3(model * vec4(position, 1.0f));
+//	normalOutput = mat3(transpose(inverse(model))) * normal;
+	vs_out.FragPos = vec3(model * vec4(position, 1.0));
+    vs_out.Normal = transpose(inverse(mat3(model))) * normal;
+    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
 }

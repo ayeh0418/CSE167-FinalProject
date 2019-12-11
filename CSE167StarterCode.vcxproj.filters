@@ -98,5 +98,9 @@
     <None Include="shaders\skybox_shader.vert" />
     <None Include="shaders\track_shader.frag" />
     <None Include="shaders\track_shader.vert" />
+    <None Include="shaders\depth_shader.frag" />
+    <None Include="shaders\depth_shader.vert" />
+    <None Include="shaders\depthCheck_shader.frag" />
+    <None Include="shaders\depthCheck_shader.vert" />
   </ItemGroup>
 </Project>

@@ -110,12 +110,30 @@ glm::vec3 Window::lightAmb(0.05f, 0.05f, 0.05f);
 glm::vec3 Window::lightDif(1.0f, 1.0f, 1.0f);
 glm::vec3 Window::lightSpec(1.0f, 1.0f, 1.0f);
 
+//framebuffers and other stuff for shadow mapping
+unsigned int Window::depthMapFBO;
+unsigned int Window::SHADOW_WIDTH = 1024;
+unsigned int Window::SHADOW_HEIGHT = 1024;
+unsigned int Window::depthMap;
+float Window::quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+		// positions   // texCoords
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+};
+unsigned int Window::quadVAO;
+unsigned int Window::quadVBO;
+//shadow mapping end
+
 // View matrix, defined by eye, center and up.
 glm::mat4 Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
 
 GLuint Window::program; // The shader program id.
 GLuint Window::skyboxProgram; // The shader program id.
 GLuint Window::trackProgram; // The shader program id.
+GLuint Window::depthProgram;
+GLuint Window::depthCheckProgram;
 
 GLuint Window::projectionLoc; // Location of projection in shader.
 GLuint Window::viewLoc; // Location of view in shader.
@@ -195,6 +213,8 @@ bool Window::initializeProgram() {
 	program = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
 	skyboxProgram = LoadShaders("shaders/skybox_shader.vert", "shaders/skybox_shader.frag");
 	trackProgram = LoadShaders("shaders/track_shader.vert", "shaders/track_shader.frag");
+	depthProgram = LoadShaders("shaders/depth_shader.vert", "shaders/depth_shader.frag");
+	depthCheckProgram = LoadShaders("shaders/depthCheck_shader.vert", "shaders/depthCheck_shader.frag");
 
 	// Check the shader program.
 	if (!program)
@@ -210,7 +230,7 @@ bool Window::initializeProgram() {
 	}
 
 	// Activate the shader program.
-	glUseProgram(program);
+	glUseProgram(depthCheckProgram);
 	
 	// Get the locations of uniform variables.
 	projectionLoc = glGetUniformLocation(program, "projection");
@@ -285,6 +305,41 @@ bool Window::initializeObjects()
 	env1 = new Skybox(1.0f, skyboxVec[1]);
 	env2 = new Skybox(1.0f, skyboxVec[2]);
 	env3 = new Skybox(1.0f, skyboxVec[3]);
+
+	//generating framebuffers for shadowmapping
+	glGenFramebuffers(1, &depthMapFBO);
+
+	//quad vertices for depth map 
+	
+
+	//quad vao, vbo
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	//generate texture for the light source's depthmap
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT,
+		0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//bind to the created framebuffer and attach depth map texture
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//making robots
 
 	sphere = new Geometry("sphere.obj", env->getTexture());
 	head = new Geometry("head_s.obj", env->getTexture());
@@ -853,288 +908,45 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {	
-	/*
-	if (culling) {
-		int cullNumber = 0;
 
-		farH = 2 * far * tan(glm::radians(fov) / 2);
-		farW = width / height * farH;
-		nearH = 2 * near * tan(glm::radians(fov) / 2);
-		nearW = width / height * nearH;
-		nearP = eye + glm::normalize(center - eye) * (float)near;
-		farP = eye + glm::normalize(center - eye) * (float)far;
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 tempR = (nearP + right * (float)nearW / 2.0f) - eye;
-		tempR = glm::normalize(tempR);
+	//problem setting light position?
+	float near = 1.0f, far = 50.0f;
+	glm::mat4 lightProjection = glm::ortho(-35.0f, 35.0f, -35.0f, 35.0f,
+		near, far);
+	glm::mat4 lightView = glm::lookAt(glm::vec3(-4.0f, 2.8f, 1.6f), center, up);
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-		glm::vec3 tempL = (nearP + (-right) * (float)nearW / 2.0f) - eye;
-		tempL = glm::normalize(tempL);
+	// first pass: render to depth map
+	glUseProgram(depthProgram); 
+	glUniformMatrix4fv(glGetUniformLocation(depthProgram, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	renderSceneDepth(); //problem here?
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glm::vec3 localU = glm::cross(-right, eye - center);
-
-		glm::vec3 tempU = (nearP + localU * (float)nearW / 2.0f) - eye;
-		tempU = glm::normalize(tempU);
-
-		glm::vec3 tempD = (nearP + (-localU) * (float)nearW / 2.0f) - eye;
-		tempD = glm::normalize(tempD);
-
-		// normals of the planes of the frustum
-		normalR = glm::cross(up, tempR);
-		normalL = glm::cross(tempL, up);
-		normalU = glm::cross(tempU, right);
-		normalD = glm::cross(right, tempD);
-		normalN = glm::normalize(center - eye);
-		normalF = glm::normalize(eye - center);
-
-		// points on the planes of the frustum
-		rightP = eye + 200.0f * tempR;
-		leftP = eye + 200.0f * tempL;
-		upP = eye + 200.0f * tempU;
-		downP = eye + 200.0f * tempD;
-
-		for (Node* child : squad->getChildren()) {
-			glm::mat4 model = ((Transform*)child)->getModel();
-			glm::vec3 x = glm::column(model, 3);
-			float distanceR = glm::dot(x, normalR) - glm::dot(rightP, normalR);
-			float distanceL = glm::dot(x, normalL) - glm::dot(leftP, normalL);
-			float distanceU = glm::dot(x, normalU) - glm::dot(upP, normalU);
-			float distanceD = glm::dot(x, normalD) - glm::dot(downP, normalD);
-			float distanceN = glm::dot(x, normalN) - glm::dot(nearP, normalN);
-			float distanceF = glm::dot(x, normalF) - glm::dot(farP, normalF);
-
-			// near plane
-			if (distanceN > 0.5) {
-				showRobot = false;
-			}
-			else if (distanceN < -0.5) {
-				showRobot = true;
-			}
-			else if (-0.5 < distanceN && distanceN < 0.5) {
-				showRobot = true;
-			}
-
-			// far plane
-			if (!showRobot) {
-				if (distanceF > 0.5) {
-					showRobot = false;
-				}
-				else if (distanceF < -0.5) {
-					showRobot = true;
-				}
-				else if (-0.5 < distanceF && distanceF < 0.5) {
-					showRobot = true;
-				}
-			}
-
-			// right plane
-			if (!showRobot) {
-				if (distanceR > 0.5) {
-					showRobot = false;
-				}
-				else if (distanceR < -0.5) {
-					showRobot = true;
-				}
-				else if (-0.5 < distanceR && distanceR < 0.5) {
-					showRobot = true;
-				}
-			}
-
-			// left plane
-			if (!showRobot) {
-				if (distanceL > 0.5) {
-					showRobot = false;
-				}
-				else if (distanceL < -0.5) {
-					showRobot = true;
-				}
-				else if (-0.5 < distanceL && distanceL < 0.5) {
-					showRobot = true;
-				}
-			}
-
-			// up plane
-			if (!showRobot) {
-				if (distanceU > 0.5) {
-					showRobot = false;
-				}
-				else if (distanceU < -0.5) {
-					showRobot = true;
-				}
-				else if (-0.5 < distanceU && distanceU < 0.5) {
-					showRobot = true;
-				}
-			}
-
-			// down plane
-			if (!showRobot) {
-				if (distanceD > 0.5) {
-					showRobot = false;
-				}
-				else if (distanceD < -0.5) {
-					showRobot = true;
-				}
-				else if (-0.5 < distanceD && distanceD < 0.5) {
-					showRobot = true;
-				}
-			}
-
-			child->setShowRobot(!showRobot);
-
-			if (!showRobot) {
-				cullNumber++;
-			}
-			cullNum = cullNumber;
-		}
-	}*/
-	for (Node* child : squadA->getChildren()) {
-		glm::mat4 model = ((Transform*)child)->getModel();
-		glm::vec3 x = glm::column(model, 3);
-		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
-
-		if (glm::distance(x, ship) <= 3) {
-			if (child->getShowRobot()) {
-				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
-				child->setShowRobot(false);
-			}
-		}
-	}
+	glViewport(0, 0, width, height);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(depthCheckProgram);
+	glUniform1f(glGetUniformLocation(depthCheckProgram, "near_plane"), near);
+	glUniform1f(glGetUniformLocation(depthCheckProgram, "far_plane"), far);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+	//// second pass: use depth map to render shadows in scene
+	//glViewport(0, 0, width, height);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//ConfigureShaderAndMatrices();
+	//glBindTexture(GL_TEXTURE_2D, depthMap);
+	//renderScene();
 	
-	for (Node* child : squadJ->getChildren()) {
-		glm::mat4 model = ((Transform*)child)->getModel();
-		glm::vec3 x = glm::column(model, 3);
-		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
-
-		if (glm::distance(x, ship) <= 3) {
-			if (child->getShowRobot()) {
-				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
-				child->setShowRobot(false);
-			}
-		}
-	}
-	
-	for (Node* child : squadD->getChildren()) {
-		glm::mat4 model = ((Transform*)child)->getModel();
-		glm::vec3 x = glm::column(model, 3);
-		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
-
-		if (glm::distance(x, ship) <= 3) {
-			if (child->getShowRobot()) {
-				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
-				child->setShowRobot(false);
-			}
-		}
-	}
-
-	// Clear the color and depth buffers.
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-	
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-	glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
-	glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
-	glUniform3fv(lightDifLoc, 1, glm::value_ptr(lightDif));
-	glUniform3fv(lightAmbLoc, 1, glm::value_ptr(lightAmb));
-	glUniform3fv(lightSpecLoc, 1, glm::value_ptr(lightSpec));
-	
-	glm::mat4 identity = glm::mat4(1.0f);
-
-	glUseProgram(program);
-	ship2world->draw(program, identity);
-
-	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
-
-
-	switch (planetNumber)
-	{
-	case 0:
-		// draw the galaxy skybox
-		head->setSkyboxTexture(env->getTexture());
-		antenna->setSkyboxTexture(env->getTexture());
-		wing->setSkyboxTexture(env->getTexture());
-		body->setSkyboxTexture(env->getTexture());
-
-		env->draw();
-		break;
-
-	case 1:
-		head->setSkyboxTexture(env1->getTexture());
-		antenna->setSkyboxTexture(env1->getTexture());
-		wing->setSkyboxTexture(env1->getTexture());
-		body->setSkyboxTexture(env1->getTexture());
-
-		glUseProgram(trackProgram);
-		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
-
-		//glBegin(GL_LINE_STRIP);
-	
-		glPolygonMode(GL_FRONT, GL_LINE);
-		glPolygonMode(GL_BACK, GL_LINE);
-
-		for (int z = 0; z < rows - 1; z++)
-		{
-			glBegin(GL_TRIANGLE_STRIP);
-
-			for (int x = 0; x < cols; x++)
-			{
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
-
-			}
-			glEnd();
-
-		}
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_FILL);
-
-		/*glBegin(GL_LINES);
-		for (int i = -10; i <= 10; i++)
-		{
-			glVertex3f((float)i, 0, (float)-10);
-			glVertex3f((float)i, 0, (float)10);
-
-			glVertex3f((float)-10, 0, (float)i);
-			glVertex3f((float)10, 0, (float)i);
-		}
-		glEnd();*/
-
-		glUseProgram(program);
-		ship2world->draw(program, identity);
-		squadJ->draw(program, identity);
-
-		env1->draw();
-
-		break;
-
-	case 2:
-		head->setSkyboxTexture(env2->getTexture());
-		antenna->setSkyboxTexture(env2->getTexture());
-		wing->setSkyboxTexture(env2->getTexture());
-		body->setSkyboxTexture(env2->getTexture());
-
-		squadA->draw(program, identity);
-		env2->draw();
-		break;
-
-	case 3:
-		head->setSkyboxTexture(env3->getTexture());
-		antenna->setSkyboxTexture(env3->getTexture());
-		wing->setSkyboxTexture(env3->getTexture());
-		body->setSkyboxTexture(env3->getTexture());
-
-		squadD->draw(program, identity);
-		env3->draw();
-		break;
-
-	default:
-		break;
-	}
 	
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -1406,3 +1218,218 @@ glm::vec3 Window::trackBallMapping(glm::vec2 point) {
 	v = glm::normalize(v);
 	return v;
 }
+
+void Window::renderScene() {
+	for (Node* child : squadA->getChildren()) {
+		glm::mat4 model = ((Transform*)child)->getModel();
+		glm::vec3 x = glm::column(model, 3);
+		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+		if (glm::distance(x, ship) <= 3) {
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
+		}
+	}
+
+	for (Node* child : squadJ->getChildren()) {
+		glm::mat4 model = ((Transform*)child)->getModel();
+		glm::vec3 x = glm::column(model, 3);
+		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+		if (glm::distance(x, ship) <= 3) {
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
+		}
+	}
+
+	for (Node* child : squadD->getChildren()) {
+		glm::mat4 model = ((Transform*)child)->getModel();
+		glm::vec3 x = glm::column(model, 3);
+		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+		if (glm::distance(x, ship) <= 3) {
+			if (child->getShowRobot()) {
+				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+				child->setShowRobot(false);
+			}
+		}
+	}
+
+	// Clear the color and depth buffers.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
+	glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+	glUniform3fv(lightDifLoc, 1, glm::value_ptr(lightDif));
+	glUniform3fv(lightAmbLoc, 1, glm::value_ptr(lightAmb));
+	glUniform3fv(lightSpecLoc, 1, glm::value_ptr(lightSpec));
+
+	glm::mat4 identity = glm::mat4(1.0f);
+
+	glUseProgram(program);
+	ship2world->draw(program, identity);
+
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+
+
+	switch (planetNumber)
+	{
+	case 0:
+		// draw the galaxy skybox
+		head->setSkyboxTexture(env->getTexture());
+		antenna->setSkyboxTexture(env->getTexture());
+		wing->setSkyboxTexture(env->getTexture());
+		body->setSkyboxTexture(env->getTexture());
+
+		env->draw();
+		break;
+
+	case 1:
+		head->setSkyboxTexture(env1->getTexture());
+		antenna->setSkyboxTexture(env1->getTexture());
+		wing->setSkyboxTexture(env1->getTexture());
+		body->setSkyboxTexture(env1->getTexture());
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		//glBegin(GL_LINE_STRIP);
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
+				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
+
+			}
+			glEnd();
+
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		/*glBegin(GL_LINES);
+		for (int i = -10; i <= 10; i++)
+		{
+			glVertex3f((float)i, 0, (float)-10);
+			glVertex3f((float)i, 0, (float)10);
+
+			glVertex3f((float)-10, 0, (float)i);
+			glVertex3f((float)10, 0, (float)i);
+		}
+		glEnd();*/
+
+		glUseProgram(program);
+		ship2world->draw(program, identity);
+		squadJ->draw(program, identity);
+
+		env1->draw();
+
+		break;
+
+	case 2:
+		head->setSkyboxTexture(env2->getTexture());
+		antenna->setSkyboxTexture(env2->getTexture());
+		wing->setSkyboxTexture(env2->getTexture());
+		body->setSkyboxTexture(env2->getTexture());
+
+		squadA->draw(program, identity);
+		env2->draw();
+		break;
+
+	case 3:
+		head->setSkyboxTexture(env3->getTexture());
+		antenna->setSkyboxTexture(env3->getTexture());
+		wing->setSkyboxTexture(env3->getTexture());
+		body->setSkyboxTexture(env3->getTexture());
+
+		squadD->draw(program, identity);
+		env3->draw();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Window::renderSceneDepth() {
+
+	glm::mat4 identity = glm::mat4(1.0f);
+
+	ship2world->draw(depthProgram, identity);
+
+	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+
+
+	switch (planetNumber)
+	{
+	case 0:
+		// draw the galaxy skybox
+		head->setSkyboxTexture(env->getTexture());
+		antenna->setSkyboxTexture(env->getTexture());
+		wing->setSkyboxTexture(env->getTexture());
+		body->setSkyboxTexture(env->getTexture());
+		break;
+
+	case 1:
+
+		/*glBegin(GL_LINES);
+		for (int i = -10; i <= 10; i++)
+		{
+			glVertex3f((float)i, 0, (float)-10);
+			glVertex3f((float)i, 0, (float)10);
+
+			glVertex3f((float)-10, 0, (float)i);
+			glVertex3f((float)10, 0, (float)i);
+		}
+		glEnd();*/
+
+		ship2world->draw(depthProgram, identity);
+		squadJ->draw(depthProgram, identity);
+
+		break;
+
+	case 2:
+		head->setSkyboxTexture(env2->getTexture());
+		antenna->setSkyboxTexture(env2->getTexture());
+		wing->setSkyboxTexture(env2->getTexture());
+		body->setSkyboxTexture(env2->getTexture());
+
+		squadA->draw(depthProgram, identity);
+		break;
+
+	case 3:
+		head->setSkyboxTexture(env3->getTexture());
+		antenna->setSkyboxTexture(env3->getTexture());
+		wing->setSkyboxTexture(env3->getTexture());
+		body->setSkyboxTexture(env3->getTexture());
+
+		squadD->draw(depthProgram, identity);
+		break;
+
+	default:
+		break;
+	}
+}
+
+
