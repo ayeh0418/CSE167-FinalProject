@@ -59,7 +59,7 @@ uniform sampler2D shadowMap;
 uniform samplerCube skybox;
 
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 norm, vec3 lightDir)
 {
 	// perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -70,7 +70,8 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+	float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);  
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return shadow;
 }
@@ -85,7 +86,7 @@ void main()
 	vec3 norm = normalize(fs_in.Normal);
 	vec3 R = reflect(I, norm);
 	vec3 textured = texture(skybox, R).rgb;
-	vec3 lightPos = vec3(-4.0f, 2.8f, 1.6f);
+	vec3 lightPos = vec3(-20.0f, 0.0f, 20.0f);
 
 	vec3 ambient = light.ambient * textured;
 
@@ -100,7 +101,7 @@ void main()
 	vec3 specular = light.specular * (spec * textured);  
 
 	//calculate shadow
-	float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+	float shadow = ShadowCalculation(fs_in.FragPosLightSpace, norm, lightDir);
 	//vec3 result = ambient + diffuse + specular;
 	vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * textured;
 	fragColor = vec4(result, 1.0);

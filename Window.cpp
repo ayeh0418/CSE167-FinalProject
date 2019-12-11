@@ -105,7 +105,7 @@ glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
 
 //directional light values
-glm::vec3 Window::lightDir(1.0f, -0.7f, -0.4f);
+glm::vec3 Window::lightDir(1.0f, 0.0f, 1.0f);
 glm::vec3 Window::lightAmb(0.05f, 0.05f, 0.05f);
 glm::vec3 Window::lightDif(1.0f, 1.0f, 1.0f);
 glm::vec3 Window::lightSpec(1.0f, 1.0f, 1.0f);
@@ -920,7 +920,7 @@ void Window::displayCallback(GLFWwindow* window)
 	float near = 1.0f, far = 50.0f;
 	glm::mat4 lightProjection = glm::ortho(-35.0f, 35.0f, -35.0f, 35.0f,
 		near, far);
-	glm::vec3 lightPos = glm::vec3(-4.0f, 2.8f, 1.6f);
+	glm::vec3 lightPos = glm::vec3(-20.0f, 0.0f, 20.0f);
 	glm::mat4 lightView = glm::lookAt(lightPos, center, up);
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
