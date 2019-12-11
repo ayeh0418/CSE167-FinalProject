@@ -911,11 +911,6 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {	
-
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	//problem setting light position?
 	float near = 1.0f, far = 50.0f;
 	glm::mat4 lightProjection = glm::ortho(-35.0f, 35.0f, -35.0f, 35.0f,
@@ -923,6 +918,10 @@ void Window::displayCallback(GLFWwindow* window)
 	glm::vec3 lightPos = glm::vec3(-20.0f, 0.0f, 20.0f);
 	glm::mat4 lightView = glm::lookAt(lightPos, center, up);
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// first pass: render to depth map
 	glUseProgram(depthProgram); 
@@ -941,6 +940,8 @@ void Window::displayCallback(GLFWwindow* window)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderScene();
+
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
 	//rendering the depth map
@@ -1231,7 +1232,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3 && planetNumber == 2) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1244,7 +1245,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3 && planetNumber == 1) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1257,7 +1258,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3 && planetNumber == 3) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
