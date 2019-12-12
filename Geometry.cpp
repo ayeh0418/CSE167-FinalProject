@@ -34,8 +34,9 @@ void Geometry::draw(GLuint programShader, glm::mat4 C) {
 	} 
 	else {
 		// if (showRobot) {
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);  	
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);  	
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 		// }
 	}
 	// Unbind from the VAO.

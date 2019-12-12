@@ -92,10 +92,12 @@ void Skybox::draw()
 {
 	// glDepthMask(GL_FALSE);
 	glUseProgram(skyboxShader);
+	glUniform1i(glGetUniformLocation(skyboxShader, "skybox"), 1);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxShader, "model"), 1, GL_FALSE, glm::value_ptr(M));
 	// ... set view and projection matrix
 	glBindVertexArray(vao);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
 	glEnable(GL_CULL_FACE);
@@ -118,6 +120,7 @@ unsigned int Skybox::loadCubemap(std::vector<std::string> faces)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
 	// Make sure no bytes are padded:
