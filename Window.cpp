@@ -1235,7 +1235,7 @@ void Window::displayCallback(GLFWwindow* window)
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glPolygonMode(GL_BACK, GL_FILL);
 
-
+		glUseProgram(program);
 		squadD->draw(program, identity);
 		env3->draw();
 		break;
