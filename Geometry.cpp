@@ -34,7 +34,7 @@ void Geometry::draw(GLuint programShader, glm::mat4 C) {
 	} 
 	else {
 		// if (showRobot) {
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE0); //need to toggle between program and bloomProgram
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);  	
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 		// }

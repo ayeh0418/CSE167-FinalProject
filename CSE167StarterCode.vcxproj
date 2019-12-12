@@ -143,6 +143,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\bloom_add.frag" />
+    <None Include="shaders\bloom_add.vert" />
+    <None Include="shaders\bloom_blur.frag" />
+    <None Include="shaders\bloom_blur.vert" />
+    <None Include="shaders\bloom_shader.frag" />
+    <None Include="shaders\bloom_shader.vert" />
     <None Include="shaders\depthCheck_shader.frag" />
     <None Include="shaders\depthCheck_shader.vert" />
     <None Include="shaders\depth_shader.frag" />

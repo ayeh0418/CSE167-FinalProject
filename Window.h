@@ -130,13 +130,22 @@ public:
 	static unsigned int depthMap;
 	//shadow mapping end
 
+	//framebuffers and other stuff for bloom effect
+	static unsigned int hdrFBO;
+	static unsigned int colorBuffers[2];
+	static unsigned int attachments[2];
+	static unsigned int pingpongFBO[2];
+	static unsigned int pingpongColorbuffers[2];
+
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;
-	static GLuint program, skyboxProgram, trackProgram, depthProgram, depthCheckProgram, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc;
+	static GLuint program, skyboxProgram, trackProgram, depthProgram, depthCheckProgram,
+		bloomProgram, blurProgram, bAddProgram,
+		projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc;
 	static GLuint lightDirLoc, lightAmbLoc, lightDifLoc, lightSpecLoc;
 	static glm::vec3 lastPos;
-	static glm::vec3 lightDir, lightAmb, lightDif, lightSpec;
+	static glm::vec3 lightDir, lightAmb, lightDif, lightSpec, pointLightPos, pointLightColor;
 	static bool pressed;
 	static int mode;
 	static int timer;
@@ -173,6 +182,8 @@ public:
 
 	static bool showShadows;
 	static bool showShadowMap;
+	static bool bloom;
+	static float exposure;
 
 	static Skybox* env;
 	static Skybox* env1;
@@ -234,5 +245,6 @@ public:
 	static glm::vec3 trackBallMapping(glm::vec2 point);
 	static void renderScene();
 	static void renderSceneDepth();
+	static void renderSceneBloom();
 };
 #endif
