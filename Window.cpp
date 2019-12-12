@@ -244,6 +244,17 @@ bool Window::initializeProgram() {
 		std::cerr << "Failed to initialize track shader program" << std::endl;
 		return false;
 	}
+	if (!depthProgram)
+	{
+		std::cerr << "Failed to initialize depth shader program" << std::endl;
+		return false;
+	}
+	if (!depthCheckProgram)
+	{
+		std::cerr << "Failed to initialize depth check shader program" << std::endl;
+		return false;
+	}
+
 
 	// Activate the shader program.
 	glUseProgram(program);
@@ -668,8 +679,6 @@ bool Window::initializeObjects()
 		zoff += 0.1;
 	}
 
-
-	std::cout << terrainYVec1[24][104] << std::endl;
 
 	// Terrain 2
 	pn = PerlinNoise(rand());
@@ -1340,7 +1349,8 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		//if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 2) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1353,7 +1363,8 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		//if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 1) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1366,7 +1377,8 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3) {
+		//if (glm::distance(x, ship) <= 3) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 3) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1380,6 +1392,10 @@ void Window::renderScene() {
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
+	glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+	glUniform3fv(lightDifLoc, 1, glm::value_ptr(lightDif));
+	glUniform3fv(lightAmbLoc, 1, glm::value_ptr(lightAmb));
+	glUniform3fv(lightSpecLoc, 1, glm::value_ptr(lightSpec));
 
 	glm::mat4 identity = glm::mat4(1.0f);
 
@@ -1482,7 +1498,6 @@ void Window::renderScene() {
 		glPolygonMode(GL_BACK, GL_FILL);
 
 		glUseProgram(program);
-
 		squadA->draw(program, identity);
 		env2->draw();
 		break;
@@ -1685,7 +1700,7 @@ void Window::renderSceneDepth() {
 	ship2world->draw(depthProgram, identity);
 
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
