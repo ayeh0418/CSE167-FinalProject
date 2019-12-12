@@ -169,7 +169,8 @@ float Window::floatSpeed = -0.006f;
 double Window::fov = 60;
 double Window::maxFov = 60;
 double Window::near = 1;
-double Window::far = 1000;
+//double Window::far = 1000;
+double Window::far = 200;
 double Window::nearW;
 double Window::farW;
 double Window::nearH;
@@ -215,15 +216,24 @@ int Window::planetNumber;
 
 std::vector<std::vector<std::string>> Window::skyboxVec;
 
-int Window::cols;
-int Window::rows;
-int Window::scale;
+int Window::cols1;
+int Window::rows1;
+int Window::scale1;
+int Window::cols2;
+int Window::rows2;
+int Window::scale2;
+int Window::cols3;
+int Window::rows3;
+int Window::scale3;
 int Window::terrainHeight;
 int Window::terrainWidth;
 int Window::terrainYValue;
 int Window::YTerrainMagnitude;
-std::vector<std::vector<float>> Window::terrainYVec;
+std::vector<std::vector<float>> Window::terrainYVec1;
+std::vector<std::vector<float>> Window::terrainYVec2;
+std::vector<std::vector<float>> Window::terrainYVec3;
 PerlinNoise Window::pn;
+float Window::flying;
 
 float Window::map32[32 * 32];
 float Window::map256[256 * 256];
@@ -251,6 +261,17 @@ bool Window::initializeProgram() {
 		std::cerr << "Failed to initialize track shader program" << std::endl;
 		return false;
 	}
+	if (!depthProgram)
+	{
+		std::cerr << "Failed to initialize depth shader program" << std::endl;
+		return false;
+	}
+	if (!depthCheckProgram)
+	{
+		std::cerr << "Failed to initialize depth check shader program" << std::endl;
+		return false;
+	}
+
 
 	// Activate the shader program.
 	glUseProgram(program);
@@ -680,25 +701,35 @@ bool Window::initializeObjects()
 		newRobot->addChild(robotD);
 	}
 
-	//TODO: May need to update this
-	scale = 2;
-	terrainWidth = 300;
-	terrainHeight = 300;
-	cols = terrainWidth / scale;
-	rows = terrainHeight / scale;
+	//terrain values
+	//terrainWidth = 300;
+	//terrainHeight = 300;
+	terrainWidth = 1000;
+	terrainHeight = 1000;
+	scale1 = 2;
+	cols1 = terrainWidth / scale1;
+	rows1 = terrainHeight / scale1;
 	terrainYValue = -20;
-	YTerrainMagnitude = 10;
+	YTerrainMagnitude = 50;
 	unsigned int seed = 227;
-	pn = PerlinNoise(seed);
+	flying = 0;
+
+	pn = PerlinNoise(rand());
 
 	//initialize terrainYValue
-	for (int z = 0; z < rows; z++)
+	//float zoff = flying;
+	//flying -= 0.1;
+	//zoff = flying;
+	float zoff = 0;
+
+	//topLeft.z -= flying;
+	for (int z = 0; z < rows1; z++)
 	{
 		std::vector<float> v1;
-		for (int x = 0; x < cols; x++)
+		float xoff = 0;
+		for (int x = 0; x < cols1; x++)
 		{
-			float noise = pn.noise(x, 0.2, z);
-			//float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
+			float noise = pn.noise(xoff, 0.2, zoff);
 
 			float min1 = 0;
 			float max1 = 1;
@@ -708,8 +739,67 @@ bool Window::initializeObjects()
 			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
 
 			v1.push_back(randomYNum);
+			xoff += 0.075;
 		}
-		terrainYVec.push_back(v1);
+		terrainYVec1.push_back(v1);
+		zoff += 0.1;
+	}
+
+
+	// Terrain 2
+	pn = PerlinNoise(rand());
+
+	scale2 = 10;
+	cols2 = terrainWidth / scale2;
+	rows2 = terrainHeight / scale2;
+	for (int z = 0; z < rows2; z++)
+	{
+		std::vector<float> v1;
+		float xoff = 0;
+		for (int x = 0; x < cols2; x++)
+		{
+			float noise = pn.noise(xoff, 0.2, zoff);
+
+			float min1 = 0;
+			float max1 = 1;
+			float min2 = terrainYValue - (YTerrainMagnitude / 2);
+			float max2 = terrainYValue + (YTerrainMagnitude / 2);
+
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
+
+			v1.push_back(randomYNum);
+			xoff += 0.075;
+		}
+		terrainYVec2.push_back(v1);
+		zoff += 0.1;
+	}
+
+	// Terrain 3
+	pn = PerlinNoise(rand());
+
+	scale3 = 5;
+	cols3 = terrainWidth / scale3;
+	rows3 = terrainHeight / scale3;
+	for (int z = 0; z < rows3; z++)
+	{
+		std::vector<float> v1;
+		float xoff = 0;
+		for (int x = 0; x < cols3; x++)
+		{
+			float noise = pn.noise(xoff, 0.2, zoff);
+
+			float min1 = 0;
+			float max1 = 1;
+			float min2 = terrainYValue - (YTerrainMagnitude / 2);
+			float max2 = terrainYValue + (YTerrainMagnitude / 2);
+
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
+
+			v1.push_back(randomYNum);
+			xoff += 0.075;
+		}
+		terrainYVec3.push_back(v1);
+		zoff += 0.1;
 	}
 	return true;
 }
@@ -1391,6 +1481,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 2) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1404,6 +1495,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 1) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1417,6 +1509,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 3) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1426,7 +1519,7 @@ void Window::renderScene() {
 	}
 
 	// Clear the color and depth buffers.
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -1438,13 +1531,15 @@ void Window::renderScene() {
 
 	glm::mat4 identity = glm::mat4(1.0f);
 
+	glUseProgram(program);
 	ship2world->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 color;
+	//glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale + center.x, terrainYValue, -(rows / 2) * scale + center.z);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
@@ -1465,6 +1560,8 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env1->getTexture());
 		body->setSkyboxTexture(env1->getTexture());
 
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
 		glUseProgram(trackProgram);
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -1476,15 +1573,14 @@ void Window::renderScene() {
 		glPolygonMode(GL_FRONT, GL_LINE);
 		glPolygonMode(GL_BACK, GL_LINE);
 
-		for (int z = 0; z < rows - 1; z++)
+		for (int z = 0; z < rows1 - 1; z++)
 		{
 			glBegin(GL_TRIANGLE_STRIP);
 
-			for (int x = 0; x < cols; x++)
+			for (int x = 0; x < cols1; x++)
 			{
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
-
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z], topLeft.z + (z * scale1));
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale1));
 			}
 			glEnd();
 
@@ -1492,16 +1588,6 @@ void Window::renderScene() {
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glPolygonMode(GL_BACK, GL_FILL);
 
-		/*glBegin(GL_LINES);
-		for (int i = -10; i <= 10; i++)
-		{
-			glVertex3f((float)i, 0, (float)-10);
-			glVertex3f((float)i, 0, (float)10);
-
-			glVertex3f((float)-10, 0, (float)i);
-			glVertex3f((float)10, 0, (float)i);
-		}
-		glEnd();*/
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);
@@ -1517,6 +1603,33 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env2->getTexture());
 		body->setSkyboxTexture(env2->getTexture());
 
+		color = glm::vec3(0.93f, 0.79f, 0.69f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows2 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols2; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z], topLeft.z + (z * scale2));
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z + 1], topLeft.z + ((z + 1) * scale2));
+			}
+			glEnd();
+
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(program);
 		squadA->draw(program, identity);
 		env2->draw();
 		break;
@@ -1527,6 +1640,32 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env3->getTexture());
 		body->setSkyboxTexture(env3->getTexture());
 
+		color = glm::vec3(0.45f, 0.40f, 0.23f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows3 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols3; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z], topLeft.z + (z * scale3));
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale3));
+			}
+			glEnd();
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(program);
 		squadD->draw(program, identity);
 		env3->draw();
 		break;
@@ -1534,6 +1673,156 @@ void Window::renderScene() {
 	default:
 		break;
 	}
+
+	//--------------------------------------
+	//for (Node* child : squadA->getChildren()) {
+	//	glm::mat4 model = ((Transform*)child)->getModel();
+	//	glm::vec3 x = glm::column(model, 3);
+	//	glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+	//	if (glm::distance(x, ship) <= 3.5 && planetNumber == 2) {
+	//		if (child->getShowRobot()) {
+	//			collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+	//			child->setShowRobot(false);
+	//		}
+	//	}
+	//}
+
+	//for (Node* child : squadJ->getChildren()) {
+	//	glm::mat4 model = ((Transform*)child)->getModel();
+	//	glm::vec3 x = glm::column(model, 3);
+	//	glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+	//	if (glm::distance(x, ship) <= 3.5 && planetNumber == 1) {
+	//		if (child->getShowRobot()) {
+	//			collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+	//			child->setShowRobot(false);
+	//		}
+	//	}
+	//}
+
+	//for (Node* child : squadD->getChildren()) {
+	//	glm::mat4 model = ((Transform*)child)->getModel();
+	//	glm::vec3 x = glm::column(model, 3);
+	//	glm::vec3 ship = glm::column(ship2world->getModel(), 3);
+
+	//	if (glm::distance(x, ship) <= 3.5 && planetNumber == 3) {
+	//		if (child->getShowRobot()) {
+	//			collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
+	//			child->setShowRobot(false);
+	//		}
+	//	}
+	//}
+
+	//// Clear the color and depth buffers.
+	////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	//glUniform3fv(viewPosLoc, 1, glm::value_ptr(eye));
+	//glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+	//glUniform3fv(lightDifLoc, 1, glm::value_ptr(lightDif));
+	//glUniform3fv(lightAmbLoc, 1, glm::value_ptr(lightAmb));
+	//glUniform3fv(lightSpecLoc, 1, glm::value_ptr(lightSpec));
+
+	//glm::mat4 identity = glm::mat4(1.0f);
+
+	//ship2world->draw(program, identity);
+
+	//glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	//glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	//glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+
+
+	//switch (planetNumber)
+	//{
+	//case 0:
+	//	// draw the galaxy skybox
+	//	head->setSkyboxTexture(env->getTexture());
+	//	antenna->setSkyboxTexture(env->getTexture());
+	//	wing->setSkyboxTexture(env->getTexture());
+	//	body->setSkyboxTexture(env->getTexture());
+
+	//	env->draw();
+	//	break;
+
+	//case 1:
+	//	head->setSkyboxTexture(env1->getTexture());
+	//	antenna->setSkyboxTexture(env1->getTexture());
+	//	wing->setSkyboxTexture(env1->getTexture());
+	//	body->setSkyboxTexture(env1->getTexture());
+
+	//	glUseProgram(trackProgram);
+	//	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	//	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+	//	glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+	//	glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+	//	//glBegin(GL_LINE_STRIP);
+
+	//	glPolygonMode(GL_FRONT, GL_LINE);
+	//	glPolygonMode(GL_BACK, GL_LINE);
+
+	//	for (int z = 0; z < rows - 1; z++)
+	//	{
+	//		glBegin(GL_TRIANGLE_STRIP);
+
+	//		for (int x = 0; x < cols; x++)
+	//		{
+	//			glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
+	//			glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
+
+	//		}
+	//		glEnd();
+
+	//	}
+	//	glPolygonMode(GL_FRONT, GL_FILL);
+	//	glPolygonMode(GL_BACK, GL_FILL);
+
+	//	/*glBegin(GL_LINES);
+	//	for (int i = -10; i <= 10; i++)
+	//	{
+	//		glVertex3f((float)i, 0, (float)-10);
+	//		glVertex3f((float)i, 0, (float)10);
+
+	//		glVertex3f((float)-10, 0, (float)i);
+	//		glVertex3f((float)10, 0, (float)i);
+	//	}
+	//	glEnd();*/
+
+	//	glUseProgram(program);
+	//	ship2world->draw(program, identity);
+	//	squadJ->draw(program, identity);
+
+	//	env1->draw();
+
+	//	break;
+
+	//case 2:
+	//	head->setSkyboxTexture(env2->getTexture());
+	//	antenna->setSkyboxTexture(env2->getTexture());
+	//	wing->setSkyboxTexture(env2->getTexture());
+	//	body->setSkyboxTexture(env2->getTexture());
+
+	//	squadA->draw(program, identity);
+	//	env2->draw();
+	//	break;
+
+	//case 3:
+	//	head->setSkyboxTexture(env3->getTexture());
+	//	antenna->setSkyboxTexture(env3->getTexture());
+	//	wing->setSkyboxTexture(env3->getTexture());
+	//	body->setSkyboxTexture(env3->getTexture());
+
+	//	squadD->draw(program, identity);
+	//	env3->draw();
+	//	break;
+
+	//default:
+	//	break;
+	//}
 }
 
 void Window::renderSceneDepth() {
@@ -1543,7 +1832,7 @@ void Window::renderSceneDepth() {
 	ship2world->draw(depthProgram, identity);
 
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
