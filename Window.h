@@ -45,39 +45,39 @@ public:
 	static Geometry* antenna;
 	static Geometry* wing;
 	static Geometry* sphere;
-	static Transform * spaceship;
-	static Transform * ship2world;
-	static Transform * body2ship;
-	static Transform * head2ship;
-	static Transform * head22ship;
-	static Transform * wind12ship;
-	static Transform * wind22ship;
-	static Transform * wind32ship;
-	static Transform * wind42ship;
-	static Transform * antenna12ship;
-	static Transform * antenna22ship;
-	static Transform * antenna32ship;
-	static Transform * antenna42ship;
+	static Transform* spaceship;
+	static Transform* ship2world;
+	static Transform* body2ship;
+	static Transform* head2ship;
+	static Transform* head22ship;
+	static Transform* wind12ship;
+	static Transform* wind22ship;
+	static Transform* wind32ship;
+	static Transform* wind42ship;
+	static Transform* antenna12ship;
+	static Transform* antenna22ship;
+	static Transform* antenna32ship;
+	static Transform* antenna42ship;
 	static Transform* ball2ship;
 	static bool turnL, turnR, goForward, goBackward;
 	static float angle;
 
 	// Andrew's alien
-	static Transform * robotA;
-	static Transform * squadA;
-	static Transform * head2RobotA;
-	static Transform * antenna12RobotA;
-	static Transform * antenna22RobotA;
-	static Transform * eyeballL2RobotA;
-	static Transform * eyeballR2RobotA;
-	static Transform * arm12RobotA;
-	static Transform * arm22RobotA;
-	static Transform * arm32RobotA;
-	static Transform * arm42RobotA;
-	static Transform * arm52RobotA;
-	static Transform * arm62RobotA;
-	static Transform * sphere2RobotA;
-	static Transform * sphere2WorldA;
+	static Transform* robotA;
+	static Transform* squadA;
+	static Transform* head2RobotA;
+	static Transform* antenna12RobotA;
+	static Transform* antenna22RobotA;
+	static Transform* eyeballL2RobotA;
+	static Transform* eyeballR2RobotA;
+	static Transform* arm12RobotA;
+	static Transform* arm22RobotA;
+	static Transform* arm32RobotA;
+	static Transform* arm42RobotA;
+	static Transform* arm52RobotA;
+	static Transform* arm62RobotA;
+	static Transform* sphere2RobotA;
+	static Transform* sphere2WorldA;
 
 	// Jonathan's alien
 	static Transform* squadJ;
@@ -106,8 +106,8 @@ public:
 
 	// Daniel's alien
 	static Transform* squadD;
-	static Transform * robotD;
-	static Transform * body2Bot;
+	static Transform* robotD;
+	static Transform* body2Bot;
 	static Transform* head2Bot;
 	static Transform* leftEye;
 	static Transform* rightEye;
@@ -129,7 +129,7 @@ public:
 	static unsigned int SHADOW_HEIGHT;
 	static unsigned int depthMap;
 	//shadow mapping end
-	
+
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up;
@@ -167,6 +167,7 @@ public:
 	static glm::vec3 nearP;
 	static glm::vec3 farP;
 	static bool showRobot;
+	static bool showSphere;
 	static int cullNum;
 	static bool culling;
 
@@ -194,7 +195,7 @@ public:
 	static unsigned int quadVAO;
 	static unsigned int quadVBO;
 	/*
-     * Planet Numbers:
+	 * Planet Numbers:
 	 *  0 : Galaxy
 	 *  1 : Planet1 red sky
 	 *  2 : Planet2 blue sky
@@ -216,6 +217,9 @@ public:
 	static std::vector<std::vector<float>> terrainYVec;
 	static PerlinNoise pn;
 
+	static float map32[32 * 32];
+	static float map256[256 * 256];
+
 	static bool initializeProgram();
 	static bool initializeObjects();
 	static void cleanUp();
@@ -231,5 +235,4 @@ public:
 	static void renderScene();
 	static void renderSceneDepth();
 };
-
 #endif

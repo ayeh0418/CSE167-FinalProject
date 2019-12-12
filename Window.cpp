@@ -176,6 +176,7 @@ glm::vec3 Window::downP;
 glm::vec3 Window::nearP;
 glm::vec3 Window::farP;
 bool Window::showRobot = true;
+bool Window::showSphere = false;
 int Window::cullNum = 100;
 bool Window::culling = false;
 
@@ -209,6 +210,9 @@ int Window::terrainYValue;
 int Window::YTerrainMagnitude;
 std::vector<std::vector<float>> Window::terrainYVec;
 PerlinNoise Window::pn;
+
+float Window::map32[32 * 32];
+float Window::map256[256 * 256];
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -398,7 +402,7 @@ bool Window::initializeObjects()
 	spaceship->addChild(body2ship);
 	spaceship->addChild(head2ship);
 	spaceship->addChild(head22ship);
-	// spaceship->addChild(ball2ship);
+	spaceship->addChild(ball2ship);
 
 	ship2world->addChild(spaceship);
 
@@ -406,7 +410,7 @@ bool Window::initializeObjects()
 	glm::mat4 antennaScalerA = glm::scale(glm::vec3(0.35, 0.3, 0.35));
 	glm::mat4 antennaScaler2 = glm::scale(glm::vec3(0.35, 0.15, 0.35));
 	glm::mat4 eyeScaler = glm::scale(glm::vec3(2.0, 2.0, 2.0));
-	glm::mat4 sphereScaler = glm::scale(glm::vec3(2.5, 2.5, 2.5));
+	glm::mat4 sphereScaler = glm::scale(glm::vec3(2.2, 2.2, 2.2));
 	glm::mat4 antennaRot = glm::rotate(identity, -70.0f, glm::vec3(0, 0, 1));
 	glm::mat4 arm1Rot = glm::rotate(identity, 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 	glm::mat4 arm2Rot = glm::rotate(identity, -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
@@ -442,7 +446,7 @@ bool Window::initializeObjects()
 	robotA->addChild(arm42RobotA);
 	robotA->addChild(arm52RobotA);
 	robotA->addChild(arm62RobotA);
-	// robotA->addChild(sphere2RobotA);
+	robotA->addChild(sphere2RobotA);
 
 	head2RobotA->addChild(head);
 	antenna12RobotA->addChild(antenna);
@@ -519,6 +523,7 @@ bool Window::initializeObjects()
 	transformRightAntenna = new Transform(tRAntenna);
 
 	transformBody->addChild(body);
+	transformBody->addChild(sphere2RobotA);
 
 	transformBody->addChild(transformLeftArm);
 	transformLeftArm->addChild(wing);
@@ -586,6 +591,7 @@ bool Window::initializeObjects()
 	robotD->addChild(sprout);
 	robotD->addChild(leftLeaf);
 	robotD->addChild(rightLeaf);
+	robotD->addChild(sphere2RobotA);
 
 	body2Bot->addChild(body);
 	// body2Bot->addChild(sphere);
@@ -995,6 +1001,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_N:
 			showShadows = !showShadows;
 			break;
+		case GLFW_KEY_D:
+			showSphere = !showSphere;
+			sphere->setShow(showSphere);
+			break;
 		case GLFW_KEY_C:
 			camView = !camView;
 
@@ -1249,7 +1259,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3 && planetNumber == 2) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 2) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1262,7 +1272,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3 && planetNumber == 1) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 1) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
@@ -1275,7 +1285,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
-		if (glm::distance(x, ship) <= 3 && planetNumber == 3) {
+		if (glm::distance(x, ship) <= 3.5 && planetNumber == 3) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
 				child->setShowRobot(false);
