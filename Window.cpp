@@ -11,7 +11,7 @@ ISound* collect;
 int Window::width = 640;
 int Window::height = 480;
 
-const char* Window::windowTitle = "Project 3";
+const char* Window::windowTitle = "Space Bounty Hunter";
 Geometry * Window::eyeball;
 Geometry* Window::sphere;
 Geometry* Window::head;
