@@ -179,7 +179,6 @@ public:
 	static bool showSphere;
 	static int cullNum;
 	static bool culling;
-	static float flying;
 
 	static bool showShadows;
 	static bool showShadowMap;
@@ -219,14 +218,14 @@ public:
 
 	static glm::vec3 eyeVec;
 
-	static int cols1, cols2, cols3;
-	static int rows1, rows2, rows3;
-	static int scale1, scale2, scale3;
+	static int cols;
+	static int rows;
+	static int scale;
 	static int terrainHeight;
 	static int terrainWidth;
 	static int terrainYValue;
 	static int YTerrainMagnitude;
-	static std::vector<std::vector<float>> terrainYVec1, terrainYVec2, terrainYVec3;
+	static std::vector<std::vector<float>> terrainYVec;
 	static PerlinNoise pn;
 
 	static float map32[32 * 32];
