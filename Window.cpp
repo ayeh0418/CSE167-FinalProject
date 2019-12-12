@@ -12,7 +12,7 @@ int Window::width = 640;
 int Window::height = 480;
 
 const char* Window::windowTitle = "Project 3";
-Geometry* Window::eyeball;
+Geometry * Window::eyeball;
 Geometry* Window::sphere;
 Geometry* Window::head;
 Geometry* Window::antenna;
@@ -44,8 +44,8 @@ float Window::exposure = 1.0f;
 
 // Andrew's alien
 // Track * Window::track;
-Transform* Window::robotA;
-Transform* Window::squadA;
+Transform * Window::robotA;
+Transform * Window::squadA;
 Transform* Window::head2RobotA;
 Transform* Window::antenna12RobotA;
 Transform* Window::antenna22RobotA;
@@ -147,8 +147,8 @@ GLuint Window::skyboxProgram; // The shader program id.
 GLuint Window::trackProgram; // The shader program id.
 GLuint Window::depthProgram;
 GLuint Window::depthCheckProgram;
-GLuint Window::bloomProgram;
-GLuint Window::blurProgram;
+GLuint Window::bloomProgram; 
+GLuint Window::blurProgram; 
 GLuint Window::bAddProgram;
 
 GLuint Window::projectionLoc; // Location of projection in shader.
@@ -215,14 +215,22 @@ int Window::planetNumber;
 
 std::vector<std::vector<std::string>> Window::skyboxVec;
 
-int Window::cols;
-int Window::rows;
-int Window::scale;
+int Window::cols1;
+int Window::rows1;
+int Window::scale1;
+int Window::cols2;
+int Window::rows2;
+int Window::scale2;
+int Window::cols3;
+int Window::rows3;
+int Window::scale3;
 int Window::terrainHeight;
 int Window::terrainWidth;
 int Window::terrainYValue;
 int Window::YTerrainMagnitude;
-std::vector<std::vector<float>> Window::terrainYVec;
+std::vector<std::vector<float>> Window::terrainYVec1;
+std::vector<std::vector<float>> Window::terrainYVec2;
+std::vector<std::vector<float>> Window::terrainYVec3;
 PerlinNoise Window::pn;
 
 float Window::map32[32 * 32];
@@ -254,7 +262,7 @@ bool Window::initializeProgram() {
 
 	// Activate the shader program.
 	glUseProgram(program);
-
+	
 	projection = glm::perspective(glm::radians(fov),
 		double(width) / (double)height, near, far);
 	// Get the locations of uniform variables.
@@ -372,7 +380,7 @@ bool Window::initializeObjects()
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	
 	//generate framebuffer for bloom effect
 	glGenFramebuffers(1, &hdrFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -414,7 +422,7 @@ bool Window::initializeObjects()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
 		// also check if framebuffers are complete (no need for depth buffer)
 	}
-
+	
 	//making robots
 	sphere = new Geometry("sphere.obj", env->getTexture());
 	head = new Geometry("head_s.obj", env->getTexture());
@@ -422,7 +430,7 @@ bool Window::initializeObjects()
 	body = new Geometry("body_s.obj", env->getTexture());
 	wing = new Geometry("limb_s.obj", env->getTexture());
 	eyeball = new Geometry("eyeball_s.obj", env->getTexture());
-
+	
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::mat4 scaler = glm::mat4(1.0f);
 	glm::mat4 wind1Scaler = glm::scale(glm::vec3(35, 2, 0.5));
@@ -430,7 +438,7 @@ bool Window::initializeObjects()
 	glm::mat4 antennaScaler = glm::scale(glm::vec3(1, 1.5, 1));
 	glm::mat4 shipScaler = glm::scale(glm::vec3(0.3, 0.3, 0.3));
 	glm::mat4 ballScaler = glm::scale(glm::vec3(7, 7, 7));
-
+	
 	glm::mat4 head2Rot = glm::rotate(identity, glm::radians(180.0f), glm::vec3(0, 0, 1));
 	glm::mat4 shipRot2 = glm::rotate(identity, glm::radians(90.0f), glm::vec3(-1, 0, 0));
 
@@ -446,9 +454,9 @@ bool Window::initializeObjects()
 	antenna32ship = new Transform(glm::translate(identity, glm::vec3(0, 1, -4.9)) * antennaScaler);
 	antenna42ship = new Transform(glm::translate(identity, glm::vec3(0, 1, 4.9)) * antennaScaler);
 	ball2ship = new Transform(ballScaler);
-
+	
 	head2ship->addChild(head);
-	head22ship->addChild(head);
+	head22ship->addChild(head);	
 	body2ship->addChild(body);
 	wind12ship->addChild(wing);
 	wind22ship->addChild(wing);
@@ -528,8 +536,8 @@ bool Window::initializeObjects()
 	sphere2RobotA->addChild(sphere);
 
 	for (int i = 0; i < 10; i++) {
-		float randX = rand() % 20 - 10;
-		float randY = rand() % 4 - 2;
+		float randX = rand() % 20 -10;
+		float randY = rand() % 4 -2;
 		float randZ = rand() % 30 - 30;
 		Transform* newRobot = new Transform(glm::translate(identity, glm::vec3(randX, randY, randZ)));
 		squadA->addChild(newRobot);
@@ -644,8 +652,8 @@ bool Window::initializeObjects()
 	leftLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.7, -1.3, 0)) * headBodyMatrix);
 	rightLeg = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.7, -1.3, 0)) * headBodyMatrix);
 	sprout = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.7, 0)) * antennaScaleMatrix);
-	leftLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 2.1, 0)));
-	rightLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 2.1, 0)));
+	leftLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 2.1, 0)) );
+	rightLeaf = new Transform(glm::translate(glm::mat4(1.0f), glm::vec3(0.1, 2.1, 0)) );
 	robotD->addChild(body2Bot);
 	robotD->addChild(head2Bot);
 	robotD->addChild(leftEye);
@@ -680,25 +688,34 @@ bool Window::initializeObjects()
 		newRobot->addChild(robotD);
 	}
 
-	//TODO: May need to update this
-	scale = 2;
-	terrainWidth = 300;
-	terrainHeight = 300;
-	cols = terrainWidth / scale;
-	rows = terrainHeight / scale;
+	//terrain values
+	//terrainWidth = 300;
+	//terrainHeight = 300;
+	terrainWidth = 1000;
+	terrainHeight = 1000;
+	scale1 = 2;
+	cols1 = terrainWidth / scale1;
+	rows1 = terrainHeight / scale1;
 	terrainYValue = -20;
-	YTerrainMagnitude = 10;
+	YTerrainMagnitude = 50;
 	unsigned int seed = 227;
-	pn = PerlinNoise(seed);
+
+	pn = PerlinNoise(rand());
 
 	//initialize terrainYValue
-	for (int z = 0; z < rows; z++)
+	//float zoff = flying;
+	//flying -= 0.1;
+	//zoff = flying;
+	float zoff = 0;
+
+	//topLeft.z -= flying;
+	for (int z = 0; z < rows1; z++)
 	{
 		std::vector<float> v1;
-		for (int x = 0; x < cols; x++)
+		float xoff = 0;
+		for (int x = 0; x < cols1; x++)
 		{
-			float noise = pn.noise(x, 0.2, z);
-			//float randomYNum = rand() % YTerrainMagnitude + (terrainYValue - YTerrainMagnitude / 2);
+			float noise = pn.noise(xoff, 0.2, zoff);
 
 			float min1 = 0;
 			float max1 = 1;
@@ -708,14 +725,73 @@ bool Window::initializeObjects()
 			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
 
 			v1.push_back(randomYNum);
+			xoff += 0.075;
 		}
-		terrainYVec.push_back(v1);
+		terrainYVec1.push_back(v1);
+		zoff += 0.1;
+	}
+
+
+	// Terrain 2
+	pn = PerlinNoise(rand());
+
+	scale2 = 10;
+	cols2 = terrainWidth / scale2;
+	rows2 = terrainHeight / scale2;
+	for (int z = 0; z < rows2; z++)
+	{
+		std::vector<float> v1;
+		float xoff = 0;
+		for (int x = 0; x < cols2; x++)
+		{
+			float noise = pn.noise(xoff, 0.2, zoff);
+
+			float min1 = 0;
+			float max1 = 1;
+			float min2 = terrainYValue - (YTerrainMagnitude / 2);
+			float max2 = terrainYValue + (YTerrainMagnitude / 2);
+
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
+
+			v1.push_back(randomYNum);
+			xoff += 0.075;
+		}
+		terrainYVec2.push_back(v1);
+		zoff += 0.1;
+	}
+
+	// Terrain 3
+	pn = PerlinNoise(rand());
+
+	scale3 = 5;
+	cols3 = terrainWidth / scale3;
+	rows3 = terrainHeight / scale3;
+	for (int z = 0; z < rows3; z++)
+	{
+		std::vector<float> v1;
+		float xoff = 0;
+		for (int x = 0; x < cols3; x++)
+		{
+			float noise = pn.noise(xoff, 0.2, zoff);
+
+			float min1 = 0;
+			float max1 = 1;
+			float min2 = terrainYValue - (YTerrainMagnitude / 2);
+			float max2 = terrainYValue + (YTerrainMagnitude / 2);
+
+			float randomYNum = (noise - min1) / (max1 - min1) * (max2 - min2) + min2;
+
+			v1.push_back(randomYNum);
+			xoff += 0.075;
+		}
+		terrainYVec3.push_back(v1);
+		zoff += 0.1;
 	}
 	return true;
 }
 
 void Window::cleanUp()
-{
+{	
 	// Deallcoate the objects.
 	// delete squad;
 	delete env;
@@ -789,7 +865,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 {
 #ifdef __APPLE__
 	// In case your Mac has a retina display.
-	glfwGetFramebufferSize(window, &width, &height);
+	glfwGetFramebufferSize(window, &width, &height); 
 #endif
 	Window::width = width;
 	Window::height = height;
@@ -797,7 +873,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 
 	// Set the projection matrix.
-	Window::projection = glm::perspective(glm::radians(fov),
+	Window::projection = glm::perspective(glm::radians(fov), 
 		double(width) / (double)height, near, far);
 }
 
@@ -870,122 +946,123 @@ void Window::idleCallback()
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(bloomProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
+	if (bloom) {
+		// Andrew's alien
+		timer++;
+		if (timer % 60 == 0) {
+			rotSpeed = rotSpeed * -1;
+			floatSpeed = floatSpeed * -1;
+		}
 
-	// Andrew's alien
-	timer++;
-	if (timer % 60 == 0) {
-		rotSpeed = rotSpeed * -1;
-		floatSpeed = floatSpeed * -1;
-	}
+		glm::mat4 antennaRot = glm::rotate(glm::mat4(1.0f), 0.005f, glm::vec3(0, 1, 0));
+		glm::mat4 armRotL = glm::rotate(glm::mat4(1.0f), rotSpeed, glm::vec3(0, 0, 1));
+		glm::mat4 armRotR = glm::rotate(glm::mat4(1.0f), -rotSpeed, glm::vec3(0, 0, 1));
+		glm::mat4 armsRot = glm::rotate(glm::mat4(1.0f), 0.005f, glm::vec3(0, 0, 1));
 
-	glm::mat4 antennaRot = glm::rotate(glm::mat4(1.0f), 0.005f, glm::vec3(0, 1, 0));
-	glm::mat4 armRotL = glm::rotate(glm::mat4(1.0f), rotSpeed, glm::vec3(0, 0, 1));
-	glm::mat4 armRotR = glm::rotate(glm::mat4(1.0f), -rotSpeed, glm::vec3(0, 0, 1));
-	glm::mat4 armsRot = glm::rotate(glm::mat4(1.0f), 0.005f, glm::vec3(0, 0, 1));
+		glm::mat4 T1 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, 0.2, 1));
+		glm::mat4 inverseT1 = glm::translate(glm::mat4(1.0f), glm::vec3(1, -0.2, -1));
 
-	glm::mat4 T1 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, 0.2, 1));
-	glm::mat4 inverseT1 = glm::translate(glm::mat4(1.0f), glm::vec3(1, -0.2, -1));
+		glm::mat4 T2 = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0.2, 1));
+		glm::mat4 inverseT2 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, -0.2, -1));
 
-	glm::mat4 T2 = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0.2, 1));
-	glm::mat4 inverseT2 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, -0.2, -1));
+		glm::mat4 T3 = glm::translate(glm::mat4(1.0f), glm::vec3(-1.3, 0.2, 0));
+		glm::mat4 inverseT3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.3, -0.2, 0));
 
-	glm::mat4 T3 = glm::translate(glm::mat4(1.0f), glm::vec3(-1.3, 0.2, 0));
-	glm::mat4 inverseT3 = glm::translate(glm::mat4(1.0f), glm::vec3(1.3, -0.2, 0));
+		glm::mat4 T4 = glm::translate(glm::mat4(1.0f), glm::vec3(1.3, 0.2, 0));
+		glm::mat4 inverseT4 = glm::translate(glm::mat4(1.0f), glm::vec3(-1.3, -0.2, 0));
 
-	glm::mat4 T4 = glm::translate(glm::mat4(1.0f), glm::vec3(1.3, 0.2, 0));
-	glm::mat4 inverseT4 = glm::translate(glm::mat4(1.0f), glm::vec3(-1.3, -0.2, 0));
+		glm::mat4 T5 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, 0.2, -1));
+		glm::mat4 inverseT5 = glm::translate(glm::mat4(1.0f), glm::vec3(1, -0.2, 1));
 
-	glm::mat4 T5 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, 0.2, -1));
-	glm::mat4 inverseT5 = glm::translate(glm::mat4(1.0f), glm::vec3(1, -0.2, 1));
+		glm::mat4 T6 = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0.2, -1));
+		glm::mat4 inverseT6 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, -0.2, 1));
 
-	glm::mat4 T6 = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0.2, -1));
-	glm::mat4 inverseT6 = glm::translate(glm::mat4(1.0f), glm::vec3(-1, -0.2, 1));
+		glm::mat4 R1 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 inverseR1 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 
-	glm::mat4 R1 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 inverseR1 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 R2 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 inverseR2 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
 
-	glm::mat4 R2 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 inverseR2 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 R5 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 inverseR5 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
 
-	glm::mat4 R5 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 inverseR5 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(-1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 R6 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+		glm::mat4 inverseR6 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
 
-	glm::mat4 R6 = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
-	glm::mat4 inverseR6 = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1 / sqrt(2), 0, 1 / sqrt(2)));
+		antenna22RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)) * antennaRot);
 
-	antenna22RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)) * antennaRot);
+		arm12RobotA->update(T1 * R1 * armRotL * inverseR1 * inverseT1);
+		arm22RobotA->update(T2 * R2 * armRotR * inverseR2 * inverseT2);
+		arm32RobotA->update(T3 * armRotL * inverseT3);
+		arm42RobotA->update(T4 * armRotR * inverseT4);
+		arm52RobotA->update(T5 * R5 * armRotL * inverseR5 * inverseT5);
+		arm62RobotA->update(T6 * R6 * armRotR * inverseR6 * inverseT6);
 
-	arm12RobotA->update(T1 * R1 * armRotL * inverseR1 * inverseT1);
-	arm22RobotA->update(T2 * R2 * armRotR * inverseR2 * inverseT2);
-	arm32RobotA->update(T3 * armRotL * inverseT3);
-	arm42RobotA->update(T4 * armRotR * inverseT4);
-	arm52RobotA->update(T5 * R5 * armRotL * inverseR5 * inverseT5);
-	arm62RobotA->update(T6 * R6 * armRotR * inverseR6 * inverseT6);
-
-	head2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	antenna12RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	eyeballL2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
-	eyeballR2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+		head2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+		antenna12RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+		eyeballL2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
+		eyeballR2RobotA->update(glm::translate(glm::mat4(1.0f), glm::vec3(0, floatSpeed, 0)));
 
 
-	// Jonathan's alien
-	if (timer == 200)
-	{
+		// Jonathan's alien
+		if (timer == 200)
+		{
+			if (rotateForward == true)
+			{
+				//start from -1000 because you need to go back all the way pass "middle"
+				timer = -200;
+				rotateForward = false;
+			}
+			else
+			{
+				timer = -200;
+				rotateForward = true;
+			}
+			//rotAngle = -rotAngle;
+		}
+
 		if (rotateForward == true)
 		{
-			//start from -1000 because you need to go back all the way pass "middle"
-			timer = -200;
-			rotateForward = false;
+			transformLeftArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformRightArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformRightLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformLeftLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
 		}
 		else
 		{
-			timer = -200;
-			rotateForward = true;
+			transformLeftArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformRightArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformRightLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
+			transformLeftLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
 		}
-		//rotAngle = -rotAngle;
-	}
-
-	if (rotateForward == true)
-	{
-		transformLeftArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformRightArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformRightLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformLeftLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-	}
-	else
-	{
-		transformLeftArm->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformRightArm->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformRightLeg->update(glm::rotate(glm::radians(-rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-		transformLeftLeg->update(glm::rotate(glm::radians(rotAngle), glm::vec3(1.0f, 0.0f, 0.0f)));
-	}
 
 
-	// Daniel's alien
-	if (timer % 450 == 0) {
+		// Daniel's alien
+		if (timer % 450 == 0) {
+			if (forwardMotion) {
+				forwardMotion = false;
+			}
+			else {
+				forwardMotion = true;
+			}
+		}
 		if (forwardMotion) {
-			forwardMotion = false;
+			rightArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+			leftArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+			rightLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+			leftLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
 		}
 		else {
-			forwardMotion = true;
+			rightArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
+			leftArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+			rightLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
+			leftLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
 		}
-	}
-	if (forwardMotion) {
-		rightArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
-		leftArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
-		rightLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
-		leftLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
-	}
-	else {
-		rightArm->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
-		leftArm->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
-		rightLeg->update(glm::rotate(glm::radians(0.1f), glm::vec3(1, 0, 0)));
-		leftLeg->update(glm::rotate(glm::radians(-0.1f), glm::vec3(1, 0, 0)));
 	}
 }
 
 void Window::displayCallback(GLFWwindow* window)
-{
+{	
 	//problem setting light position?
 	float near = 1.0f, far = 50.0f;
 	glm::mat4 lightProjection = glm::ortho(-35.0f, 35.0f, -35.0f, 35.0f,
@@ -993,7 +1070,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glm::vec3 lightPos = glm::vec3(-20.0f, 0.0f, 20.0f);
 	glm::mat4 lightView = glm::lookAt(lightPos, center, up);
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-
+	
 	glEnable(GL_DEPTH_TEST);
 
 	if (!bloom) {
@@ -1054,7 +1131,7 @@ void Window::displayCallback(GLFWwindow* window)
 		//shadow mapping first pass: render to depth map
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(depthProgram);
+		glUseProgram(depthProgram); 
 		glUniformMatrix4fv(glGetUniformLocation(depthProgram, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -1110,7 +1187,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	glm::mat4 shipRot2 = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(-1, 0, 0));
 	// Check for a key press.
 	if (action == GLFW_PRESS)
-	{
+	{	
 		switch (key)
 		{
 		case GLFW_KEY_ESCAPE:
@@ -1149,7 +1226,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				pilot->setIsPaused(true); // pause the sound
 			}
 			break;
-
+		
 		case GLFW_KEY_0:
 			if (planetNumber != 0) {
 				planetNumber = 0;
@@ -1238,9 +1315,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		}
 	}
-
+	
 	// keyboard control directions
-	switch (key)
+	switch (key) 
 	{
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_RELEASE) {
@@ -1259,7 +1336,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			turnR = true;
 		}
 		break;
-
+		
 	case GLFW_KEY_UP:
 		if (action == GLFW_RELEASE) {
 			goForward = false;
@@ -1268,7 +1345,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			goForward = true;
 		}
 		break;
-
+		
 	case GLFW_KEY_DOWN:
 		if (action == GLFW_RELEASE) {
 			goBackward = false;
@@ -1277,7 +1354,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			goBackward = true;
 		}
 
-	default:
+	default: 
 		break;
 	}
 }
@@ -1359,7 +1436,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	if (fov >= maxFov)
 		fov = maxFov;
 
-	projection = glm::perspective(glm::radians(fov), (double)width / (double)height, near, far);
+	projection = glm::perspective(glm::radians(fov), (double) width / (double) height, near, far);
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(bloomProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	// update window title
@@ -1391,6 +1468,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 2) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1404,6 +1482,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 1) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1417,6 +1496,7 @@ void Window::renderScene() {
 		glm::vec3 x = glm::column(model, 3);
 		glm::vec3 ship = glm::column(ship2world->getModel(), 3);
 
+		//if (glm::distance(x, ship) <= 3) {
 		if (glm::distance(x, ship) <= 3.5 && planetNumber == 3) {
 			if (child->getShowRobot()) {
 				collect = SoundEngine->play3D("collect.mp3", vec3df(0, 0, 0), false, false, true);
@@ -1426,7 +1506,7 @@ void Window::renderScene() {
 	}
 
 	// Clear the color and depth buffers.
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -1438,13 +1518,15 @@ void Window::renderScene() {
 
 	glm::mat4 identity = glm::mat4(1.0f);
 
+	glUseProgram(program);
 	ship2world->draw(program, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 color;
+	//glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale + center.x, terrainYValue, -(rows / 2) * scale + center.z);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
@@ -1465,6 +1547,8 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env1->getTexture());
 		body->setSkyboxTexture(env1->getTexture());
 
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
 		glUseProgram(trackProgram);
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -1476,15 +1560,14 @@ void Window::renderScene() {
 		glPolygonMode(GL_FRONT, GL_LINE);
 		glPolygonMode(GL_BACK, GL_LINE);
 
-		for (int z = 0; z < rows - 1; z++)
+		for (int z = 0; z < rows1 - 1; z++)
 		{
 			glBegin(GL_TRIANGLE_STRIP);
 
-			for (int x = 0; x < cols; x++)
+			for (int x = 0; x < cols1; x++)
 			{
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
-
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z], topLeft.z + (z * scale1));
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale1));
 			}
 			glEnd();
 
@@ -1492,16 +1575,6 @@ void Window::renderScene() {
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glPolygonMode(GL_BACK, GL_FILL);
 
-		/*glBegin(GL_LINES);
-		for (int i = -10; i <= 10; i++)
-		{
-			glVertex3f((float)i, 0, (float)-10);
-			glVertex3f((float)i, 0, (float)10);
-
-			glVertex3f((float)-10, 0, (float)i);
-			glVertex3f((float)10, 0, (float)i);
-		}
-		glEnd();*/
 
 		glUseProgram(program);
 		ship2world->draw(program, identity);
@@ -1517,6 +1590,33 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env2->getTexture());
 		body->setSkyboxTexture(env2->getTexture());
 
+		color = glm::vec3(0.93f, 0.79f, 0.69f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows2 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols2; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z], topLeft.z + (z * scale2));
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z + 1], topLeft.z + ((z + 1) * scale2));
+			}
+			glEnd();
+
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(program);
 		squadA->draw(program, identity);
 		env2->draw();
 		break;
@@ -1527,6 +1627,32 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env3->getTexture());
 		body->setSkyboxTexture(env3->getTexture());
 
+		color = glm::vec3(0.45f, 0.40f, 0.23f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows3 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols3; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z], topLeft.z + (z * scale3));
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale3));
+			}
+			glEnd();
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(program);
 		squadD->draw(program, identity);
 		env3->draw();
 		break;
@@ -1543,7 +1669,7 @@ void Window::renderSceneDepth() {
 	ship2world->draw(depthProgram, identity);
 
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
@@ -1563,7 +1689,6 @@ void Window::renderSceneDepth() {
 		{
 			glVertex3f((float)i, 0, (float)-10);
 			glVertex3f((float)i, 0, (float)10);
-
 			glVertex3f((float)-10, 0, (float)i);
 			glVertex3f((float)10, 0, (float)i);
 		}
@@ -1642,13 +1767,15 @@ void Window::renderSceneBloom() {
 
 	glm::mat4 identity = glm::mat4(1.0f);
 
+	glUseProgram(bloomProgram);
 	ship2world->draw(bloomProgram, identity);
 
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale, terrainYValue, -(rows / 2) * scale);
+	glm::vec3 color;
+	//glm::vec3 topLeft = glm::vec3(-(cols / 2) * scale + center.x, terrainYValue, -(rows / 2) * scale + center.z);
+	glm::vec3 topLeft = glm::vec3(-(cols1 / 2) * scale1, terrainYValue, -(rows1 / 2) * scale1);
 
 
 	switch (planetNumber)
@@ -1669,6 +1796,8 @@ void Window::renderSceneBloom() {
 		wing->setSkyboxTexture(env1->getTexture());
 		body->setSkyboxTexture(env1->getTexture());
 
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+
 		glUseProgram(trackProgram);
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -1680,15 +1809,14 @@ void Window::renderSceneBloom() {
 		glPolygonMode(GL_FRONT, GL_LINE);
 		glPolygonMode(GL_BACK, GL_LINE);
 
-		for (int z = 0; z < rows - 1; z++)
+		for (int z = 0; z < rows1 - 1; z++)
 		{
 			glBegin(GL_TRIANGLE_STRIP);
 
-			for (int x = 0; x < cols; x++)
+			for (int x = 0; x < cols1; x++)
 			{
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z], topLeft.z + (z * scale));
-				glVertex3f(topLeft.x + (x * scale), terrainYVec[x][z + 1], topLeft.z + ((z + 1) * scale));
-
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z], topLeft.z + (z * scale1));
+				glVertex3f(topLeft.x + (x * scale1), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale1));
 			}
 			glEnd();
 
@@ -1696,16 +1824,6 @@ void Window::renderSceneBloom() {
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glPolygonMode(GL_BACK, GL_FILL);
 
-		/*glBegin(GL_LINES);
-		for (int i = -10; i <= 10; i++)
-		{
-			glVertex3f((float)i, 0, (float)-10);
-			glVertex3f((float)i, 0, (float)10);
-
-			glVertex3f((float)-10, 0, (float)i);
-			glVertex3f((float)10, 0, (float)i);
-		}
-		glEnd();*/
 
 		glUseProgram(bloomProgram);
 		ship2world->draw(bloomProgram, identity);
@@ -1721,6 +1839,33 @@ void Window::renderSceneBloom() {
 		wing->setSkyboxTexture(env2->getTexture());
 		body->setSkyboxTexture(env2->getTexture());
 
+		color = glm::vec3(0.93f, 0.79f, 0.69f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows2 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols2; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z], topLeft.z + (z * scale2));
+				glVertex3f(topLeft.x + (x * scale2), terrainYVec2[x][z + 1], topLeft.z + ((z + 1) * scale2));
+			}
+			glEnd();
+
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(bloomProgram);
 		squadA->draw(bloomProgram, identity);
 		env2->draw();
 		break;
@@ -1731,12 +1876,38 @@ void Window::renderSceneBloom() {
 		wing->setSkyboxTexture(env3->getTexture());
 		body->setSkyboxTexture(env3->getTexture());
 
-		squadD->draw(bloomProgram, identity);
+		color = glm::vec3(0.45f, 0.40f, 0.23f);
+
+		glUseProgram(trackProgram);
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
+
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
+
+		for (int z = 0; z < rows3 - 1; z++)
+		{
+			glBegin(GL_TRIANGLE_STRIP);
+
+			for (int x = 0; x < cols3; x++)
+			{
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z], topLeft.z + (z * scale3));
+				glVertex3f(topLeft.x + (x * scale3), terrainYVec1[x][z + 1], topLeft.z + ((z + 1) * scale3));
+			}
+			glEnd();
+		}
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
+
+		glUseProgram(bloomProgram);
+		squadD->draw(program, identity);
 		env3->draw();
 		break;
 
 	default:
 		break;
 	}
-
+	
 }
