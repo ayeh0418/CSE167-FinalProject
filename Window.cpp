@@ -37,6 +37,8 @@ bool Window::turnR = false;
 bool Window::goForward = false;
 bool Window::goBackward = false;
 float Window::angle = 0;
+bool Window::showShadowMap = false;
+bool Window::showShadows = true;
 
 // Andrew's alien
 // Track * Window::track;
@@ -105,7 +107,7 @@ glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPos(0, 0, 0);
 
 //directional light values
-glm::vec3 Window::lightDir(1.0f, 0.0f, 1.0f);
+glm::vec3 Window::lightDir(1.0f, 0.0f, -1.0f);
 glm::vec3 Window::lightAmb(0.05f, 0.05f, 0.05f);
 glm::vec3 Window::lightDif(1.0f, 1.0f, 1.0f);
 glm::vec3 Window::lightSpec(1.0f, 1.0f, 1.0f);
@@ -933,27 +935,36 @@ void Window::displayCallback(GLFWwindow* window)
 	renderSceneDepth(); //problem here?
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glViewport(0, 0, width, height);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(program);
-	glUniformMatrix4fv(glGetUniformLocation(program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderScene();
+	if (showShadowMap) {
+		//rendering the depth map
+		glViewport(0, 0, width, height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(depthCheckProgram);
+		glUniform1f(glGetUniformLocation(depthCheckProgram, "near_plane"), near);
+		glUniform1f(glGetUniformLocation(depthCheckProgram, "far_plane"), far);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+	}
+	else {
+		glViewport(0, 0, width, height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(program);
+		if (showShadows) {
+			glUniform1i(glGetUniformLocation(program, "showShadows"), 1);
+		}
+		else {
+			glUniform1i(glGetUniformLocation(program, "showShadows"), 0);
+		}
+		glUniformMatrix4fv(glGetUniformLocation(program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		renderScene();
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-	//rendering the depth map
-	//glUseProgram(depthCheckProgram);
-	//glUniform1f(glGetUniformLocation(depthCheckProgram, "near_plane"), near);
-	//glUniform1f(glGetUniformLocation(depthCheckProgram, "far_plane"), far);
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	//glBindVertexArray(quadVAO);
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	//glBindVertexArray(0);
-	
+	}
 	
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -978,6 +989,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 
+		case GLFW_KEY_S:
+			showShadowMap = !showShadowMap;
+			break;
+		case GLFW_KEY_N:
+			showShadows = !showShadows;
+			break;
 		case GLFW_KEY_C:
 			camView = !camView;
 
@@ -1437,5 +1454,3 @@ void Window::renderSceneDepth() {
 		break;
 	}
 }
-
-

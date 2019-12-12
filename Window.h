@@ -170,6 +170,9 @@ public:
 	static int cullNum;
 	static bool culling;
 
+	static bool showShadows;
+	static bool showShadowMap;
+
 	static Skybox* env;
 	static Skybox* env1;
 	static Skybox* env2;
@@ -185,6 +188,7 @@ public:
 	static double newTime;
 	static double leftover;
 	static bool camView;
+
 
 	static float quadVertices[];
 	static unsigned int quadVAO;
