@@ -183,6 +183,7 @@ public:
 	static bool showShadows;
 	static bool showShadowMap;
 	static bool bloom;
+	static bool filled;
 	static float exposure;
 
 	static Skybox* env;

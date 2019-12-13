@@ -40,6 +40,7 @@ float Window::angle = 0;
 bool Window::showShadowMap = false;
 bool Window::showShadows = true;
 bool Window::bloom = true;
+bool Window::filled = false;
 float Window::exposure = 1.0f;
 
 // Andrew's alien
@@ -1208,6 +1209,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_B:
 			bloom = !bloom;
 			break;
+		case GLFW_KEY_F:
+			filled = !filled;
+			break;
 		case GLFW_KEY_C:
 			camView = !camView;
 
@@ -1547,7 +1551,7 @@ void Window::renderScene() {
 		wing->setSkyboxTexture(env1->getTexture());
 		body->setSkyboxTexture(env1->getTexture());
 
-		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		color = glm::vec3(0.5f, 0.5f, 0.5f);
 
 		glUseProgram(trackProgram);
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -1557,8 +1561,12 @@ void Window::renderScene() {
 
 		//glBegin(GL_LINE_STRIP);
 
-		glPolygonMode(GL_FRONT, GL_LINE);
-		glPolygonMode(GL_BACK, GL_LINE);
+		if (!filled)
+		{
+			glPolygonMode(GL_FRONT, GL_LINE);
+			glPolygonMode(GL_BACK, GL_LINE);
+		}
+
 
 		for (int z = 0; z < rows1 - 1; z++)
 		{
@@ -1572,8 +1580,10 @@ void Window::renderScene() {
 			glEnd();
 
 		}
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_FILL);
+		if (!filled) {
+			glPolygonMode(GL_FRONT, GL_FILL);
+			glPolygonMode(GL_BACK, GL_FILL);
+		}
 
 
 		glUseProgram(program);
@@ -1598,8 +1608,12 @@ void Window::renderScene() {
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
 
-		glPolygonMode(GL_FRONT, GL_LINE);
-		glPolygonMode(GL_BACK, GL_LINE);
+		if (!filled)
+		{
+			glPolygonMode(GL_FRONT, GL_LINE);
+			glPolygonMode(GL_BACK, GL_LINE);
+		}
+
 
 		for (int z = 0; z < rows2 - 1; z++)
 		{
@@ -1613,8 +1627,10 @@ void Window::renderScene() {
 			glEnd();
 
 		}
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_FILL);
+		if (!filled) {
+			glPolygonMode(GL_FRONT, GL_FILL);
+			glPolygonMode(GL_BACK, GL_FILL);
+		}
 
 		glUseProgram(program);
 		squadA->draw(program, identity);
@@ -1635,8 +1651,12 @@ void Window::renderScene() {
 		glUniformMatrix4fv(glGetUniformLocation(trackProgram, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 		glUniform3fv(glGetUniformLocation(trackProgram, "color"), 1, glm::value_ptr(color));
 
-		glPolygonMode(GL_FRONT, GL_LINE);
-		glPolygonMode(GL_BACK, GL_LINE);
+		if (!filled)
+		{
+			glPolygonMode(GL_FRONT, GL_LINE);
+			glPolygonMode(GL_BACK, GL_LINE);
+		}
+
 
 		for (int z = 0; z < rows3 - 1; z++)
 		{
@@ -1649,8 +1669,11 @@ void Window::renderScene() {
 			}
 			glEnd();
 		}
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_FILL);
+
+		if (!filled) {
+			glPolygonMode(GL_FRONT, GL_FILL);
+			glPolygonMode(GL_BACK, GL_FILL);
+		}
 
 		glUseProgram(program);
 		squadD->draw(program, identity);
